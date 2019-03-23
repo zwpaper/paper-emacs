@@ -1,0 +1,21 @@
+# elpa
+elpa
+# emacs gen file
+ac-comphist.dat
+projectile-bookmarks.eld
+recentf
+eshell/
+pyim/
+emojis/
+places
+tramp
+transient/
+url/
+bookmarks
+
+# system
+.DS_Store
+*~
+
+# tmp file
+*.bak
