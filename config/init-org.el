@@ -27,7 +27,7 @@
                       "+CLOSED>=\""
                       (format-time-string "[%Y-%m-%d]" (time-subtract (current-time) (days-to-time 1)))
                       "\""))
-        ("rw" "Get Current: Review Previous Calendar"
+        ("rw" "Get Current: Review Previous Week"
          ((agenda "" ((org-agenda-start-day (concat "-" (number-to-string (+ 13 (nth 6 (decode-time)))) "d"))
                       (org-agenda-span (+ 14 (nth 6 (decode-time))))
                       (org-agenda-repeating-timestamp-show-all t)
@@ -138,5 +138,15 @@
 (org-babel-do-load-languages 'org-babel-load-languages
                              '(
                                (shell . t)))
+
+(use-package deft
+  :commands (deft)
+  :config
+  (setq deft-extensions '("md" "markdown" "tex" "org"))
+  (setq deft-recursive t)
+  (setq deft-use-filename-as-title t)
+  :bind
+  (("M-s M-o" . deft)))
+
 (provide 'init-org)
 ;;; init-org.el ends here
