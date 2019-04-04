@@ -4,6 +4,18 @@
 
 
 * Essentials
+  Use package
+
+  #+begin_src emacs-lisp
+    (unless (package-installed-p 'use-package)
+      (package-refresh-contents)
+      (package-install 'use-package))
+    (eval-when-compile
+      (require 'use-package))
+    (setq use-package-always-ensure t)
+  #+end_src
+
+
 ** Startup Optimization
    Optimize startup time.
    #+BEGIN_SRC emacs-lisp
@@ -47,17 +59,6 @@
                       (concat "~/.emacs.d/plugin/" (car (last (split-string (car manual-pakages) "/"))))
                       t)
        (setq manual-pakages (cdr manual-pakages)))
-   #+end_src
-
-   Use package
-
-   #+begin_src emacs-lisp
-     (unless (package-installed-p 'use-package)
-       (package-refresh-contents)
-       (package-install 'use-package))
-     (eval-when-compile
-       (require 'use-package))
-     (setq use-package-always-ensure t)
    #+end_src
 
 *** General
@@ -226,7 +227,7 @@
 #+end_src
 
 -----
-** TODO COMMENT
+** TBD
 ;; Guarantee all packages are installed on start
 ;; Common Lisp Emulation
 (require 'cl)
@@ -376,8 +377,8 @@
     (epa-file-enable)
     (setq epa-pinentry-mode 'loopback))
 
-  ; Global Settings:
-  ;; Key bindings
+  ;; Global Settings:
+  ;;; Key bindings
   (global-set-key (kbd "M-m") 'goto-line)
   ;; scroll one line only when past the bottom of screen
   (setq scroll-conservatively 1)
@@ -409,10 +410,10 @@
 
   ;; Whitespace
   (use-package whitespace
-    :init
-    (global-whitespace-mode 1)
     :config
     (setq-default whitespace-style '(face tailing lines-tail))
+    (global-whitespace-mode 1)
+
     :hook
     (shell-mode-hook . (lambda () (setq whitespace-style '(face tailing))))
     (org-mode-hook . (lambda () (setq whitespace-style '(face tailing))))
@@ -453,6 +454,7 @@
     :init
     (use-package eshell-up)
     (use-package eshell-did-you-mean)
+    (use-package eshell-prompt-extras)
     :config
     (add-hook 'eshell-mode-hook
               (defun my-eshell-mode-hook ()
@@ -485,11 +487,9 @@
 
   ;; Pyim
   (use-package pyim
-    :ensure nil
     :config
     ;; 五笔用户使用 wbdict 词库
     (use-package pyim-wbdict
-      :ensure nil
       :config (pyim-wbdict-v98-enable))
 
     (setq default-input-method "pyim")
@@ -561,16 +561,13 @@
   (projectile-mode)
   (helm-projectile-on)
 
-  ;; eshell
-  (add-hook 'eshell-mode-hook #'(lambda () (setq ac-sources '(ac-source-pcomplete))))
-
   ;; magit
   (use-package magit
     :config
     (global-set-key (kbd "C-x g") 'magit-status)
     (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup))
 
-  ;;; sr speedbar
+    ;;; sr speedbar
                                           ;(require 'sr-speedbar)
                                           ;(setq sr-speedbar-right-side nil)
                                           ;(setq sr-speedbar-width-console 20)
@@ -580,15 +577,6 @@
                                           ; (sr-speedbar-max-width 10)
                                           ;(global-set-key (kbd "C-c l") 'sr-speedbar-toggle)
 
-  ;;YASnippet
-                                          ;(add-to-list 'load-path
-                                          ;              "~/.emacs.d/plugins/yasnippet")
-  (use-package yasnippet)
-  (setq ac-source-yasnippet nil)
-  ;; (define-key yas-minor-mode-map (kbd "<tab>") nil)
-  ;; (define-key yas-minor-mode-map (kbd "TAB") nil)
-  (define-key yas-minor-mode-map (kbd "C-o") 'yas-expand)
-  (yas-global-mode 1)
 
   ;; Indent Guide
   (add-to-list 'load-path "~/.emacs.d/plugin/indent-guide")
@@ -620,18 +608,6 @@
     (when (gtags-root-dir)
       (gtags-update)))
   (add-hook 'after-save-hook #'gtags-update-hook)
-
-  ;; FlyCheck
-  (use-package flycheck
-    :init (global-flycheck-mode)
-    :config
-    (add-hook 'after-init-hook #'global-flycheck-mode))
-
-
-  (defun my-flycheck-c-setup ()
-    (setq flycheck-clang-language-standard "gnu99"))
-  (setq flycheck-emacs-lisp-load-path 'inherit)
-  (add-hook 'c-mode-hook #'my-flycheck-c-setup)
 
   ;;; local package
   (use-package init-org
