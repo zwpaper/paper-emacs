@@ -142,7 +142,30 @@
   (global-set-key (kbd "C-<backspace>") (lambda ()
                                           (interactive)
                                           (moon-hungry-delete)))
+
+  ;; Whitespace
+  (use-package whitespace
+    :diminish whitespace-mode
+    :config
+    (setq-default whitespace-style '(face tailing lines-tail))
+
+    :hook
+    (prog-mode . whitespace-mode)
+    (org-mode-hook . (lambda () (setq whitespace-style '(face tailing))))
+    (markdown-mode-hook . (lambda () (setq whitespace-style '(face tailing)))))
 #+end_src
+**** Style
+
+     Check spell for org and markdown
+
+     #+BEGIN_SRC emacs-lisp
+       (use-package flyspell
+         :defer t
+         :init
+         (progn
+           (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+           (add-hook 'text-mode-hook 'flyspell-mode)))
+     #+END_SRC
 
 ** OS Related
     #+begin_src emacs-lisp
@@ -228,60 +251,6 @@
 
 -----
 ** TBD
-;; Guarantee all packages are installed on start
-;; Common Lisp Emulation
-(require 'cl)
-(defvar packages-list
-  '(
-;;; Emacs settings
-    atom-one-dark-theme
-    neotree
-    all-the-icons
-    use-package
-    pyim
-    pyim-wbdict
-    ; Run manually
-    ; M-x all-the-icons-install-fonts
-    ace-window
-    helm
-    helm-projectile
-    virtualenvwrapper
-    eshell-prompt-extras
-    exec-path-from-shell
-;;; org mode
-    ox-gfm
-;;; General Programming
-    ; auto-complete
-    highlight-parentheses
-    ggtags
-    flycheck
-    yasnippet
-;;; Git
-    magit
-;;; Go
-    go-eldoc
-    go-mode
-    go-add-tags
-;;; Haskell
-    haskell-mode
-;;; Python
-    )
-  "List of packages needs to be installed at launch.")
-
-(defun has-package-not-installed ()
-  (loop for p in packages-list
-        when (not (package-installed-p p)) do (return t)
-        finally (return nil)))
-(when (has-package-not-installed)
-  ;; Check for new packages (package versions)
-  (message "%s" "Get latest versions of all packages...")
-  (package-refresh-contents)
-  (message "%s" " done.")
-  ;; Install the missing packages
-  (dolist (p packages-list)
-    (when (not (package-installed-p p))
-      (package-install p))))
------
 
 #+begin_src emacs-lisp
   ;;; Treemacs
@@ -408,17 +377,6 @@
   ;; (require 'tramp)
   ;; (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
 
-  ;; Whitespace
-  (use-package whitespace
-    :config
-    (setq-default whitespace-style '(face tailing lines-tail))
-    (global-whitespace-mode 1)
-
-    :hook
-    (shell-mode-hook . (lambda () (setq whitespace-style '(face tailing))))
-    (org-mode-hook . (lambda () (setq whitespace-style '(face tailing))))
-    (markdown-mode-hook . (lambda () (setq whitespace-style '(face tailing)))))
-
   ;; multiple cursors
   (global-set-key (kbd "C-c C-l") 'mc/edit-lines)
   (global-set-key (kbd "C-c C-n") 'mc/mark-next-like-this)
@@ -454,21 +412,7 @@
     :init
     (use-package eshell-up)
     (use-package eshell-did-you-mean)
-    (use-package eshell-prompt-extras)
-    :config
-    (add-hook 'eshell-mode-hook
-              (defun my-eshell-mode-hook ()
-                (require 'eshell-z)))
-    ;; eshell
-    (with-eval-after-load "esh-opt"
-      (use-package virtualenvwrapper
-        :init
-        (venv-initialize-eshell))
-      (autoload 'epe-theme-dakrone "eshell-prompt-extras")
-      (setq eshell-highlight-prompt nil
-            eshell-prompt-function 'epe-theme-dakrone)))
-
-
+    (use-package eshell-prompt-extras))
 
                                           ; Global
   ;; Theme

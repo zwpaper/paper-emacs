@@ -1,6 +1,7 @@
 # elpa
 elpa
 # emacs gen file
+README.el
 ac-comphist.dat
 projectile-bookmarks.eld
 recentf
