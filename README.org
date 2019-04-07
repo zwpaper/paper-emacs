@@ -52,6 +52,8 @@
      (setq manual-pakages
            '(
              "https://raw.githubusercontent.com/manateelazycat/aweshell/master/aweshell.el"
+             "https://raw.githubusercontent.com/joaotavora/autopair/master/autopair.el"
+             "https://raw.githubusercontent.com/zk-phi/indent-guide/master/indent-guide.el"
              "https://raw.githubusercontent.com/manateelazycat/thing-edit/master/thing-edit.el"))
 
      (while manual-pakages
