@@ -15,9 +15,11 @@
 (setq package-archives
       '(
         ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+        ;; ("melpa" . "https://melpa.org/packages/")
+        ;; ("melpa" . "http://elpa.emacs-china.org/melpa/")
+	    ;; ("melpa-stable" . "https://stable.melpa.org/packages/")
         ("gnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
         ("org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
-                                        ; ("melpa" . "https://melpa.org/packages/")
         ))
 (package-initialize)
 
