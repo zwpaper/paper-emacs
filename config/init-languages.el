@@ -8,7 +8,6 @@
   (require 'init-const))
 
 ;; YASnippet
-(add-to-list 'load-path "~/.emacs.d/plugins/yasnippet")
 (use-package yasnippet
   :init
   (use-package yasnippet-snippets)
@@ -45,7 +44,7 @@
 (use-package lsp-mode
   :commands lsp
   :init
-  (setq lsp-auto-guess-root t)
+  (setq lsp-auto-guess-root nil)
   :config
   (setq lsp-prefer-flymake nil)
   :hook
