@@ -32,8 +32,9 @@
       (if emacs/>=26p
           (use-package flycheck-posframe
             :hook (flycheck-mode . flycheck-posframe-mode)
-            :config (add-to-list 'flycheck-posframe-inhibit-functions
-                                 #'(lambda () (bound-and-true-p company-backend))))
+            :config
+            (flycheck-posframe-configure-pretty-defaults))
+
         (use-package flycheck-pos-tip
           :defines flycheck-pos-tip-timeout
           :hook (global-flycheck-mode . flycheck-pos-tip-mode)
@@ -52,8 +53,6 @@
   (prog-mode . lsp))
 
 (use-package lsp-ui
-  :init
-  (setq lsp-ui-flycheck-enable t)
   :hook
   (lsp-mode . lsp-ui-mode))
 
@@ -81,12 +80,7 @@
 ;   (setq flycheck-clang-language-standard "gnu99"))
 
 ;; Go
-(use-package go-mode
-  :init
-  :config
-  (if (not (string-match "go" compile-command))
-      (set (make-local-variable 'compile-command)
-           "go generate && go build -v && go test -v && go vet")))
+(use-package go-mode)
 
 ;;; Rust
 (use-package rust-mode
