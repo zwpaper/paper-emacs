@@ -413,13 +413,11 @@
     :ensure nil
     :init
     (use-package eshell-up)
+    (use-package eshell-z)
     (use-package eshell-did-you-mean)
     (use-package eshell-prompt-extras))
 
-                                          ; Global
-  ;; Theme
-  (use-package atom-one-dark-theme)
-  (load-theme 'atom-one-dark t)
+  ;;; Global
 
   (setq inhibit-compacting-font-caches t)
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
