@@ -1,18 +1,27 @@
-# elpa
+# emacs general
 elpa
+custom.el
+
 # emacs gen file
 README.el
-ac-comphist.dat
-projectile-bookmarks.eld
-recentf
 eshell/
 pyim/
-emojis/
 places
 tramp
 transient/
 url/
 bookmarks
+
+# Manually download
+plugin/*.el
+
+# Cache or sessions
+.cache
+.lsp-session-v1
+emojis/
+projectile-bookmarks.eld
+ac-comphist.dat
+recentf
 
 # system
 .DS_Store

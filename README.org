@@ -598,6 +598,12 @@
                                           ; (setq-default TeX-PDF-mode t)
 #+end_src
 
+** Customize
+   #+begin_src emacs-lisp
+     (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+     (when (file-exists-p custom-file)
+       (load custom-file))
+   #+end_src
 * Credits
 This Emacs configuration was influenced and inspired by the following configurations.
 - [[https://github.com/MatthewZMD/.emacs.d][MT’s GNU Emacs Configuration]]
