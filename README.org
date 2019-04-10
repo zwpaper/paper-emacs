@@ -61,6 +61,13 @@
                       (concat "~/.emacs.d/plugin/" (car (last (split-string (car manual-pakages) "/"))))
                       t)
        (setq manual-pakages (cdr manual-pakages)))
+
+     ;;; Vars
+     (setq-default indent-tabs-mode nil)
+     (setq-default tab-width 4)
+     (add-to-list 'exec-path "/usr/local/bin")
+     (add-to-list 'load-path "~/.emacs.d/plugin")
+     (add-to-list 'load-path "~/.emacs.d/config")
    #+end_src
 
 *** General
@@ -252,6 +259,49 @@
 #+end_src
 
 -----
+
+** Funny Skins
+   #+begin_src emacs-lisp
+     (use-package emojify
+       :config
+       (add-hook 'org-mode-hook #'emojify-mode))
+     (use-package doom-modeline
+       :config
+       :hook
+       (after-init . doom-modeline-init))
+     (use-package nyan-mode
+       :hook
+       (after-init . nyan-mode))
+     (use-package doom-themes
+       :config
+       ;; Global settings (defaults)
+       (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+             doom-themes-enable-italic t) ; if nil, italics is universally disabled
+
+       ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
+       ;; may have their own settings.
+       (load-theme 'doom-one t)
+                                             ; (doom-themes-treemacs-config)
+       ;; Corrects (and improves) org-mode's native fontification.
+       (doom-themes-org-config))
+   #+end_src
+
+
+*** Nerd Icons
+    install [[https://github.com/ryanoasis/nerd-fonts][Nerd Icons]] before using this
+
+    macOS:
+    #+begin_quote
+    brew cask install font-hack-nerd-font
+    #+end_quote
+  
+    #+begin_src emacs-lisp
+      (add-to-list 'load-path "~/.emacs.d/plugin/nerd-icons")
+      (use-package nerd-icons
+        :ensure nil)
+    #+end_src
+
+
 ** TBD
 
 #+begin_src emacs-lisp
@@ -295,31 +345,6 @@
     :ensure t
     :config (treemacs-icons-dired-mode))
 
-  ;;; Funny Skin
-  (use-package emojify
-    :config
-    (add-hook 'org-mode-hook #'emojify-mode))
-  (use-package all-the-icons)
-  (use-package doom-modeline
-    :config
-    :hook
-    (after-init . doom-modeline-init))
-  (use-package nyan-mode
-    :hook
-    (after-init . nyan-mode))
-  (use-package doom-themes
-    :config
-    ;; Global settings (defaults)
-    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-          doom-themes-enable-italic t) ; if nil, italics is universally disabled
-
-    ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
-    ;; may have their own settings.
-    (load-theme 'doom-one t)
-                                          ; (doom-themes-treemacs-config)
-    ;; Corrects (and improves) org-mode's native fontification.
-    (doom-themes-org-config))
-
   ;;; Bookmarks
   (setq bookmark-save-flag 1) ; everytime bookmark is changed, automatically save it
   (use-package recentf
@@ -330,13 +355,6 @@
     (setq recentf-max-menu-items 100))
 
 
-  ;;; Vars
-  (setq-default indent-tabs-mode nil)
-  (setq-default tab-width 4)
-  (add-to-list 'exec-path "/usr/local/bin")
-  (add-to-list 'load-path "~/.emacs.d/plugin")
-  (add-to-list 'load-path "~/fp")
-  (add-to-list 'load-path "~/.emacs.d/config")
 
   (require 'autopair)
   (autopair-global-mode) ;; enable autopair in all buffers

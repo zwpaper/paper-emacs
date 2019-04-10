@@ -1,0 +1,3 @@
+[submodule "plugin/nerd-icons"]
+	path = plugin/nerd-icons
+	url = git@github.com:twlz0ne/nerd-icons.el.git
