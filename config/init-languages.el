@@ -52,6 +52,8 @@
   (prog-mode . lsp))
 
 (use-package lsp-ui
+  :config
+  (setq lsp-ui-sideline-enable nil)
   :hook
   (lsp-mode . lsp-ui-mode))
 
@@ -78,31 +80,13 @@
 ;   (setq-default c-basic-offset 4)
 ;   (setq flycheck-clang-language-standard "gnu99"))
 
-;; Go
 (use-package go-mode)
 
-;;; Rust
 (use-package rust-mode
   :init
   :config
   (with-eval-after-load 'lsp-mode
     (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))))
-;  :hook
-;  (rust-mode . flycheck-mode))
-
-;; ;; python
-;(use-package lsp-python
-;  :config
-;  (lsp-define-stdio-client lsp-python "python"
-;                           (lsp-make-traverser #'(lambda (dir)
-;                                                   (directory-files
-;                                                    dir
-;                                                    nil
-;                                                    "\\(__init__\\|setup\\)\\.py\\|Pipfile")))
-;                           '("pyls"))
-;
-;  )
-;; (add-hook 'python-mode-hook #'lsp-python-enable)
 
 (use-package python-mode
   :init
@@ -121,7 +105,9 @@
 (use-package dockerfile-mode
   :mode "Dockerfile\\'")
 
-;; Markdown
+(use-package yaml-mode
+  :ensure t)
+
 (use-package markdown-mode
   :ensure t
   :commands (markdown-mode gfm-mode)
@@ -132,8 +118,7 @@
   (setq markdown-command "/usr/local/bin/pandoc")
   :config)
 (use-package markdown-toc
-  :defer t
-  )
+  :defer t)
 
 (provide 'init-languages)
 ;;; init-languages.el ends here
