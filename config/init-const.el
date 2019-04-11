@@ -33,6 +33,9 @@
   (>= emacs-major-version 27)
   "Emacs is 27 or above.")
 
+(defconst org-path
+  "")
+
 (provide 'init-const)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
