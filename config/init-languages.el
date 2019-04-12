@@ -67,9 +67,6 @@
   :hook
   (after-init . global-company-mode))
 
-;; Bash
-; (add-hook 'sh-mode-hook #'lsp-sh-enable)
-
 ;; c/c++
 ; (use-package cc-mode
 ;   :ensure nil
@@ -79,6 +76,9 @@
 ;   (global-set-key (kbd "C-c C-t") 'gdb)
 ;   (setq-default c-basic-offset 4)
 ;   (setq flycheck-clang-language-standard "gnu99"))
+
+;; built-in support sh-mode
+;; (use-package sh-mode)
 
 (use-package go-mode)
 
