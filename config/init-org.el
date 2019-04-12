@@ -9,6 +9,7 @@
 (require 'init-const)
 
 (use-package org
+  :pin gnu
   :ensure org-plus-contrib
   :bind (("C-M-f" . org-do-demote)
          ("C-M-b" . org-do-promote)
