@@ -47,14 +47,15 @@
        (dashboard-setup-startup-hook))
    #+END_SRC
 ** Package
-   Download some packages from internet
+   Download some packages from Internet
    #+begin_src emacs-lisp
      (setq manual-pakages
            '(
              "https://raw.githubusercontent.com/manateelazycat/aweshell/master/aweshell.el"
              "https://raw.githubusercontent.com/joaotavora/autopair/master/autopair.el"
              "https://raw.githubusercontent.com/zk-phi/indent-guide/master/indent-guide.el"
-             "https://raw.githubusercontent.com/manateelazycat/thing-edit/master/thing-edit.el"))
+             "https://raw.githubusercontent.com/manateelazycat/thing-edit/master/thing-edit.el"
+             "https://raw.githubusercontent.com/beancount/beancount/master/editors/emacs/beancount.el"))
 
      (while manual-pakages
        (url-copy-file (car manual-pakages)
@@ -162,6 +163,9 @@
     (prog-mode . whitespace-mode)
     (org-mode-hook . (lambda () (setq whitespace-style '(face tailing))))
     (markdown-mode-hook . (lambda () (setq whitespace-style '(face tailing)))))
+  (use-package aggressive-indent
+    :config
+    (global-aggressive-indent-mode))
 #+end_src
 **** Style
 
