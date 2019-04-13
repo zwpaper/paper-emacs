@@ -4,7 +4,9 @@
 
 
 * Essentials
-  Use package
+  There are some system package dependency, should be installed, check [[https://github.com/zwpaper/dotfile][dot file]]
+
+**  Use package
 
   #+begin_src emacs-lisp
     (unless (package-installed-p 'use-package)
@@ -46,15 +48,18 @@
        (add-to-list 'dashboard-items '(agenda) t)
        (dashboard-setup-startup-hook))
    #+END_SRC
+
 ** Package
    Download some packages from Internet
    #+begin_src emacs-lisp
      (setq manual-pakages
            '(
              "https://raw.githubusercontent.com/manateelazycat/aweshell/master/aweshell.el"
+             "https://raw.githubusercontent.com/manateelazycat/awesome-pair/master/awesome-pair.el"
+             "https://raw.githubusercontent.com/manateelazycat/color-rg/master/color-rg.el"
+             "https://raw.githubusercontent.com/manateelazycat/thing-edit/master/thing-edit.el"
              "https://raw.githubusercontent.com/joaotavora/autopair/master/autopair.el"
              "https://raw.githubusercontent.com/zk-phi/indent-guide/master/indent-guide.el"
-             "https://raw.githubusercontent.com/manateelazycat/thing-edit/master/thing-edit.el"
              "https://raw.githubusercontent.com/beancount/beancount/master/editors/emacs/beancount.el"))
 
      (while manual-pakages
@@ -69,10 +74,10 @@
      (add-to-list 'exec-path "/usr/local/bin")
      (add-to-list 'load-path "~/.emacs.d/plugin")
      (add-to-list 'load-path "~/.emacs.d/config")
+     (setq ispell-program-name "/usr/local/bin/ispell")
    #+end_src
 
 *** General
-
 **** Thing Edit
      #+begin_src emacs-lisp
        ;; unbind C-w and M-w first, for binding in thing edit
@@ -98,6 +103,7 @@
           ("C-w C-b" . thing-cut-whole-buffer)
           ("M-w M-b" . thing-cut-whole-buffer))
      #+end_src
+
 **** White spaces
 #+begin_src emacs-lisp
   (defun moon-hungry-delete ()
@@ -311,9 +317,67 @@
 ** TBD
 
 #+begin_src emacs-lisp
-  ;;; Treemacs
+        ;;; var
+                                          ;(defvar program-mode (haskell-mode c-mode emacs-lisp-mode lisp-interaction-mode lisp-mode
+                                          ;                sh-mode c++-mode makefile-gmake-mode python-mode js-mode
+                                          ;                go-mode rust-mode lua-mode minibuffer-inactive-mode))
+
+      ;;; local package
+  (use-package init-org
+    :ensure nil)
+  (use-package init-languages
+    :ensure nil)
+
+      ;;; Awesome pair
+  (use-package awesome-pair
+    :ensure nil
+    :config
+    (define-key awesome-pair-mode-map (kbd "(") 'awesome-pair-open-round)
+    (define-key awesome-pair-mode-map (kbd "[") 'awesome-pair-open-bracket)
+    (define-key awesome-pair-mode-map (kbd "{") 'awesome-pair-open-curly)
+    (define-key awesome-pair-mode-map (kbd ")") 'awesome-pair-close-round)
+    (define-key awesome-pair-mode-map (kbd "]") 'awesome-pair-close-bracket)
+    (define-key awesome-pair-mode-map (kbd "}") 'awesome-pair-close-curly)
+    (define-key awesome-pair-mode-map (kbd "=") 'awesome-pair-equal)
+
+    (define-key awesome-pair-mode-map (kbd "%") 'awesome-pair-match-paren)
+    (define-key awesome-pair-mode-map (kbd "\"") 'awesome-pair-double-quote)
+
+    (define-key awesome-pair-mode-map (kbd "SPC") 'awesome-pair-space)
+
+    (define-key awesome-pair-mode-map (kbd "M-o") 'awesome-pair-backward-delete)
+    (define-key awesome-pair-mode-map (kbd "C-d") 'awesome-pair-forward-delete)
+    (define-key awesome-pair-mode-map (kbd "C-k") 'awesome-pair-kill)
+
+    (define-key awesome-pair-mode-map (kbd "M-\"") 'awesome-pair-wrap-double-quote)
+    (define-key awesome-pair-mode-map (kbd "M-[") 'awesome-pair-wrap-bracket)
+    (define-key awesome-pair-mode-map (kbd "M-{") 'awesome-pair-wrap-curly)
+    (define-key awesome-pair-mode-map (kbd "M-(") 'awesome-pair-wrap-round)
+    (define-key awesome-pair-mode-map (kbd "M-)") 'awesome-pair-unwrap)
+
+    (define-key awesome-pair-mode-map (kbd "M-p") 'awesome-pair-jump-right)
+    (define-key awesome-pair-mode-map (kbd "M-n") 'awesome-pair-jump-left)
+
+    (dolist (hook (list
+                   'c-mode-common-hook
+                   'c-mode-hook
+                   'c++-mode-hook
+                   'haskell-mode-hook
+                   'emacs-lisp-mode-hook
+                   'lisp-interaction-mode-hook
+                   'lisp-mode-hook
+                   'sh-mode-hook
+                   'makefile-gmake-mode-hook
+                   'python-mode-hook
+                   'go-mode-hook
+                   'rust-mode-hook
+                   'lua-mode-hook
+                   'minibuffer-inactive-mode-hook
+                   ))
+      (add-hook hook '(lambda () (awesome-pair-mode 1)))))
+
+        ;;; Treemacs
   (use-package treemacs
-    :ensure t
     :defer t
     :init
     (with-eval-after-load 'winum
@@ -496,38 +560,35 @@
   (global-set-key (kbd "C-\\") 'toggle-input-method)
 
   ;; Helm TODO
-  (use-package helm)
   (use-package helm-projectile)
-  (require 'helm-config)
-  (helm-mode 1)
-  (helm-autoresize-mode 1)
+  (use-package helm
+    :init
+    (require 'helm-config)
+    :config
+    (helm-mode 1)
+    (helm-autoresize-mode 1)
+    (global-set-key (kbd "M-x") 'helm-M-x)
+    (global-set-key (kbd "M-y") 'helm-show-kill-ring)
+    (global-set-key (kbd "C-c h") 'helm-command-prefix)
+    (global-set-key (kbd "C-x b") 'helm-mini)
+    (global-set-key (kbd "C-x C-f") 'helm-find-files)
+    (global-set-key (kbd "C-s") 'helm-occur)
+    (global-set-key (kbd "C-h SPC") 'helm-all-mark-rings)
+    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+    (setq helm-split-window-in-side-p           t
+          helm-move-to-line-cycle-in-source     t
+          helm-ff-search-library-in-sexp        t
+          helm-M-x-fuzzy-match                  t   ; 模糊搜索
+          helm-buffers-fuzzy-matching           t
+          helm-locate-fuzzy-match               t
+          helm-recentf-fuzzy-match              t
+          helm-scroll-amount                    8
+          helm-ff-file-name-history-use-recentf t)
 
-  (global-set-key (kbd "M-x") 'helm-M-x)
-  (global-set-key (kbd "M-y") 'helm-show-kill-ring)
-  (global-set-key (kbd "C-c h") 'helm-command-prefix)
-  (global-set-key (kbd "C-x b") 'helm-mini)
-  (global-set-key (kbd "C-x C-f") 'helm-find-files)
-  (global-set-key (kbd "C-s") 'helm-occur)
-  (global-set-key (kbd "C-h SPC") 'helm-all-mark-rings)
-  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-  (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+    (projectile-mode)
+    (helm-projectile-on))
 
-  (when (executable-find "ack-grep")
-    (setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
-                  helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
-
-  (setq helm-split-window-in-side-p           t
-        helm-move-to-line-cycle-in-source     t
-        helm-ff-search-library-in-sexp        t
-        helm-M-x-fuzzy-match                  t   ; 模糊搜索
-        helm-buffers-fuzzy-matching           t
-        helm-locate-fuzzy-match               t
-        helm-recentf-fuzzy-match              t
-        helm-scroll-amount                    8
-        helm-ff-file-name-history-use-recentf t)
-
-  (projectile-mode)
-  (helm-projectile-on)
 
   ;; magit
   (use-package magit
@@ -547,41 +608,13 @@
 
 
   ;; Indent Guide
-  (add-to-list 'load-path "~/.emacs.d/plugin/indent-guide")
-  (require 'indent-guide)
-  (indent-guide-global-mode)
-  (setq indent-guide-char "|")
-  (setq indent-guide-recursive t)
+                                          ;  (use-package highlight-indent-guides
+                                          ;    :hook
+                                          ;    (haskell-mode c-mode emacs-lisp-mode lisp-interaction-mode lisp-mode
+                                          ;    sh-mode c++-mode makefile-gmake-mode python-mode js-mode
+                                          ;    go-mode rust-mode lua-mode minibuffer-inactive-mode))
 
-  ;; Show line numbers
-  (add-hook 'find-file-hooks (lambda()(display-line-numbers-mode 1)))
 
-  ;; gnu global
-  (add-to-list 'load-path "~/.emacs.d/plugin/ggtags")
-  (add-hook 'c-mode-common-hook
-            (lambda ()
-              (when (derived-mode-p 'c-mode 'c++-mode)
-                (ggtags-mode 1))))
-
-  (defun gtags-root-dir ()
-    "Returns GTAGS root directory or nil if doesn't exist."
-    (with-temp-buffer
-      (if (zerop (call-process "global" nil t nil "-pr"))
-          (buffer-substring (point-min) (1- (point-max)))
-        nil)))
-  (defun gtags-update ()
-    "Make GTAGS incremental update"
-    (call-process "global" nil nil nil "-u"))
-  (defun gtags-update-hook ()
-    (when (gtags-root-dir)
-      (gtags-update)))
-  (add-hook 'after-save-hook #'gtags-update-hook)
-
-  ;;; local package
-  (use-package init-org
-    :ensure nil)
-  (use-package init-languages
-    :ensure nil)
 
   (load "server")
   (unless (server-running-p) (server-start))
