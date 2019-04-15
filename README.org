@@ -159,16 +159,38 @@
                                           (interactive)
                                           (moon-hungry-delete)))
 
-  ;; Whitespace
+  ;; Visualize TAB, (HARD) SPACE, NEWLINE
   (use-package whitespace
-    :diminish whitespace-mode
+    :ensure nil
+    :diminish
+    :hook ((prog-mode outline-mode conf-mode) . whitespace-mode)
     :config
-    (setq-default whitespace-style '(face tailing lines-tail))
+    (setq whitespace-line-column fill-column) ;; limit line length
+    ;; automatically clean up bad whitespace
+    (setq whitespace-action '(auto-cleanup))
+    ;; only show bad whitespace
+    (setq whitespace-style '(face
+                             trailing space-before-tab
+                             indentation empty space-after-tab))
 
-    :hook
-    (prog-mode . whitespace-mode)
-    (org-mode-hook . (lambda () (setq whitespace-style '(face tailing))))
-    (markdown-mode-hook . (lambda () (setq whitespace-style '(face tailing)))))
+    (with-eval-after-load 'popup
+      ;; advice for whitespace-mode conflict with popup
+      (defvar my-prev-whitespace-mode nil)
+      (make-local-variable 'my-prev-whitespace-mode)
+
+      (defadvice popup-draw (before my-turn-off-whitespace activate compile)
+        "Turn off whitespace mode before showing autocomplete box."
+        (if whitespace-mode
+            (progn
+              (setq my-prev-whitespace-mode t)
+              (whitespace-mode -1))
+          (setq my-prev-whitespace-mode nil)))
+
+      (defadvice popup-delete (after my-restore-whitespace activate compile)
+        "Restore previous whitespace mode when deleting autocomplete box."
+        (if my-prev-whitespace-mode
+            (whitespace-mode 1)))))
+
   (use-package aggressive-indent
     :config
     (global-aggressive-indent-mode))
