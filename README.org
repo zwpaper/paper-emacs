@@ -194,6 +194,14 @@
   (use-package aggressive-indent
     :config
     (global-aggressive-indent-mode))
+
+  (use-package rainbow-delimiters
+    :hook
+    (prog-mode . rainbow-delimiters-mode))
+
+  (use-package highlight-parentheses
+    :hook
+    (prog-mode . highlight-parentheses-mode))
 #+end_src
 **** Style
 
@@ -309,7 +317,7 @@
     #+begin_quote
     brew cask install font-hack-nerd-font
     #+end_quote
-  
+
     #+begin_src emacs-lisp
       (use-package all-the-icons)
       ; should run M-x: all-the-icons-install-fonts
@@ -335,6 +343,57 @@
       ;; (setq face-font-rescale-alist '(("PingFang SC" . 1.0)))
     #+end_src
 
+*** Show color in 'compilation buffers
+    #+begin_src emacs-lisp
+      (require 'ansi-color)
+      (defun colorize-compilation-buffer ()
+        (ansi-color-apply-on-region compilation-filter-start (point)))
+      (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+    #+end_src
+
+*** Show line numbers
+    #+begin_src emacs-lisp
+      (add-hook 'find-file-hooks (lambda()(display-line-numbers-mode 1)))
+    #+end_src
+
+** Kill ring
+   #+begin_src emacs-lisp
+     (defun isolate-kill-ring()
+       "Isolate Emacs kill ring from OS X system pasteboard.
+     This function is only necessary in window system."
+       (interactive)
+       (setq interprogram-cut-function nil)
+       (setq interprogram-paste-function nil))
+
+     (defun pasteboard-copy()
+       "Copy region to OS X system pasteboard."
+       (interactive)
+       (shell-command-on-region
+        (region-beginning) (region-end) "pbcopy"))
+
+     (defun pasteboard-paste()
+       "Paste from OS X system pasteboard via `pbpaste' to point."
+       (interactive)
+       (shell-command-on-region
+        (point) (if mark-active (mark) (point)) "pbpaste" nil t))
+
+     (defun pasteboard-cut()
+       "Cut region and put on OS X system pasteboard."
+       (interactive)
+       (pasteboard-copy)
+       (delete-region (region-beginning) (region-end)))
+
+     (if window-system
+         (progn
+           (isolate-kill-ring)
+           ;; bind CMD+C to pasteboard-copy
+           (global-set-key (kbd "s-c") 'pasteboard-copy)
+           ;; bind CMD+V to pasteboard-paste
+           (global-set-key (kbd "s-v") 'pasteboard-paste)
+           ;; bind CMD+X to pasteboard-cut
+           (global-set-key (kbd "s-x") 'pasteboard-cut))
+       )
+   #+end_src
 
 ** TBD
 
@@ -445,12 +504,6 @@
     :config
     (setq-default recent-save-file "~/.emacs.d/recentf")
     (setq recentf-max-menu-items 100))
-
-
-
-  (require 'autopair)
-  (autopair-global-mode) ;; enable autopair in all buffers
-  (show-paren-mode 1)
 
   (use-package epa-file
     :ensure nil
