@@ -19,28 +19,28 @@
   (setq org-log-done t)
   (setq org-agenda-files (list (concat org-path "/tasks"))))
 
-  ;; Custom commands
-  (setq org-agenda-custom-commands
-        '(("o" "At the office" tags-todo "#office"
-           ((org-agenda-overriding-header "#office")))
-          ("h" "At the home" tags-todo "#home"
-           ((org-agenda-overriding-header "home")))
-          ("p" "Priority" tags-todo "+PRIORITY=\"A\"")
-          ("w" "Waitting" todo "WAITING")
-          ("r" . "Review")
-          ("ry" "Closed Yesterday"
-           tags (concat "+TODO=\"DONE\""
-                        "+CLOSED>=\""
-                        (format-time-string "[%Y-%m-%d]" (time-subtract (current-time) (days-to-time 1)))
-                        "\""))
-          ("rw" "Get Current: Review Previous Week"
-           ((agenda "" ((org-agenda-start-day (concat "-" (number-to-string (+ 13 (nth 6 (decode-time)))) "d"))
-                        (org-agenda-span (+ 14 (nth 6 (decode-time))))
-                        (org-agenda-repeating-timestamp-show-all t)
-                        (org-agenda-entry-types '(:deadline :timestamp :sexp)) ; show due tasks, meetings
-                        (org-agenda-show-log t)
-                        (org-agenda-prefix-format "%-12t% s"))))
-           ))))
+;; Custom commands
+(setq org-agenda-custom-commands
+      '(("o" "At the office" tags-todo "#office"
+         ((org-agenda-overriding-header "#office")))
+        ("h" "At the home" tags-todo "#home"
+         ((org-agenda-overriding-header "home")))
+        ("p" "Priority" tags-todo "+PRIORITY=\"A\"")
+        ("w" "Waitting" todo "WAITING")
+        ("r" . "Review")
+        ("ry" "Closed Yesterday"
+         tags (concat "+TODO=\"DONE\""
+                      "+CLOSED>=\""
+                      (format-time-string "[%Y-%m-%d]" (time-subtract (current-time) (days-to-time 1)))
+                      "\""))
+        ("rw" "Get Current: Review Previous Week"
+         ((agenda "" ((org-agenda-start-day (concat "-" (number-to-string (+ 13 (nth 6 (decode-time)))) "d"))
+                      (org-agenda-span (+ 14 (nth 6 (decode-time))))
+                      (org-agenda-repeating-timestamp-show-all t)
+                      (org-agenda-entry-types '(:deadline :timestamp :sexp)) ; show due tasks, meetings
+                      (org-agenda-show-log t)
+                      (org-agenda-prefix-format "%-12t% s"))))
+         )))
 
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
