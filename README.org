@@ -2,6 +2,16 @@
 
 * About
 
+When first using this config, there is some steps have to be done before started.
+
+1. git submodule init
+2. git submodule update
+
+Sometimes when first start, emacs may not found some package in =Melpa=,
+try to install any one package manually, and then restart emacs.
+
+Because some packages need fully reload, It may need several restarting Emacs.
+
 
 * Essentials
   There are some system package dependency, should be installed, check [[https://github.com/zwpaper/dotfile][dot file]]
@@ -320,26 +330,31 @@
 
     #+begin_src emacs-lisp
       (use-package all-the-icons)
-      ; should run M-x: all-the-icons-install-fonts
+      ;; should run M-x: all-the-icons-install-fonts
       (add-to-list 'load-path "~/.emacs.d/plugin/nerd-icons")
       (use-package nerd-icons
         :ensure nil)
-      ;; Set default font
-      ;;; 如果配置好，这24个汉字与下面个48英文字母应该等长
-      ;;; here are 24 chinese and 48 english chars, ended.
-      (set-face-attribute 'default nil
-                          :family "Hack Nerd Font"
-                          :height 140
-                          :weight 'normal
-                          :width 'normal)
-      (set-fontset-font t 'han      (font-spec
-                                     :family "PingFang SC"
-                                     :size 16
-                                     ))
-      (set-fontset-font t 'cjk-misc (font-spec
-                                     :family "PingFang SC"
-                                     :size 16
-                                     ))
+
+      (if (display-graphic-p)
+          (progn
+            ;; Set default font
+            ;;; 如果配置好，这24个汉字与下面个48英文字母应该等长
+            ;;; here are 24 chinese and 48 english chars, ended.
+            (set-face-attribute 'default nil
+                                :family "Hack Nerd Font"
+                                :height 140
+                                :weight 'normal
+                                :width 'normal)
+            (set-fontset-font t 'han      (font-spec
+                                           :family "PingFang SC"
+                                           :size 16
+                                           ))
+            (set-fontset-font t 'cjk-misc (font-spec
+                                           :family "PingFang SC"
+                                           :size 16
+                                           ))
+            ))
+
       ;; (setq face-font-rescale-alist '(("PingFang SC" . 1.0)))
     #+end_src
 
