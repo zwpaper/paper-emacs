@@ -111,7 +111,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
           ("C-w C-c" . thing-cut-comment)
           ("M-w M-c" . thing-copy-comment)
           ("C-w C-b" . thing-cut-whole-buffer)
-          ("M-w M-b" . thing-cut-whole-buffer))
+          ("M-w M-b" . thing-copy-whole-buffer))
      #+end_src
 
 **** White spaces
@@ -358,7 +358,9 @@ Because some packages need fully reload, It may need several restarting Emacs.
       ;; (setq face-font-rescale-alist '(("PingFang SC" . 1.0)))
     #+end_src
 
-*** Show color in 'compilation buffers
+*** Show color in buffers
+    + compilation
+
     #+begin_src emacs-lisp
       (require 'ansi-color)
       (defun colorize-compilation-buffer ()
@@ -418,13 +420,15 @@ Because some packages need fully reload, It may need several restarting Emacs.
                                           ;                sh-mode c++-mode makefile-gmake-mode python-mode js-mode
                                           ;                go-mode rust-mode lua-mode minibuffer-inactive-mode))
 
-      ;;; local package
+  ;;; local package
   (use-package init-org
     :ensure nil)
   (use-package init-languages
     :ensure nil)
 
-      ;;; Awesome pair
+  (use-package multiple-cursors)
+
+  ;;; Awesome pair
   (use-package awesome-pair
     :ensure nil
     :config
@@ -593,7 +597,11 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (use-package eshell-up)
     (use-package eshell-z)
     (use-package eshell-did-you-mean)
-    (use-package eshell-prompt-extras))
+    (use-package eshell-prompt-extras)
+    :config
+    (defalias 'open 'find-file)
+    (defalias 'ls '(lsd $*))
+    )
 
   ;;; Global
 
@@ -682,9 +690,8 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
   ;; magit
   (use-package magit
-    :config
-    (global-set-key (kbd "C-x g") 'magit-status)
-    (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup))
+    :bind
+    ("C-x g" . magit-status))
 
     ;;; sr speedbar
                                           ;(require 'sr-speedbar)
