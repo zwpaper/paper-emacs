@@ -42,20 +42,43 @@
       :hook (flycheck-mode . flycheck-popup-tip-mode))))
 
 (use-package lsp-mode
+  :custom-face
+  (lsp-ui-doc-background ((t (:background nil))))
+  (lsp-ui-doc-header ((t (:inherit (font-lock-string-face italic)))))
   :commands lsp
   :init
   (setq lsp-auto-guess-root nil)
   :config
   (setq lsp-prefer-flymake nil)
   :hook
-  (before-save . lsp-format-buffer)
-  (prog-mode . lsp))
+  (prog-mode . lsp)
+  :bind (:map lsp-mode-map
+              ("C-c C-d" . lsp-describe-thing-at-point)))
 
 (use-package lsp-ui
+  :init (setq lsp-ui-doc-enable t
+              lsp-ui-doc-header t
+              lsp-ui-doc-include-signature t
+              lsp-ui-doc-position 'top
+              lsp-ui-doc-use-webkit t
+              lsp-ui-doc-border (face-foreground 'default)
+
+              lsp-ui-sideline-enable nil
+              lsp-ui-sideline-ignore-duplicate t)
   :config
   (setq lsp-ui-sideline-enable nil)
   :hook
-  (lsp-mode . lsp-ui-mode))
+  (lsp-mode . lsp-ui-mode)
+  :bind (:map lsp-ui-mode-map
+              ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+              ([remap xref-find-references] . lsp-ui-peek-find-references)
+              ("C-c u" . lsp-ui-imenu)))
+
+(require 'company-posframe)
+(company-posframe-mode 1)
+(require 'desktop) ;this line is needed.
+(push '(company-posframe-mode . nil)
+      desktop-minor-mode-table)
 
 (use-package company-lsp
   :after company lsp-mode
@@ -67,20 +90,65 @@
   :hook
   (after-init . global-company-mode))
 
-;; c/c++
-; (use-package cc-mode
-;   :ensure nil
-;   :config
-;   (setq flycheck-clang-language-standard "c++11")
-;   (global-set-key (kbd "C-c C-r") 'compile)
-;   (global-set-key (kbd "C-c C-t") 'gdb)
-;   (setq-default c-basic-offset 4)
-;   (setq flycheck-clang-language-standard "gnu99"))
+
+;;; c/c++
+;; using ccls: https://github.com/MaskRay/ccls
+(use-package ccls
+  :config
+  (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
+  :hook ((c-mode c++-mode objc-mode) .
+         (lambda () (require 'ccls) (lsp))))
+;; (use-package google-c-style
+;;   :hook
+;;   ((c-mode c++-mode) . google-set-c-style)
+;;   (c-mode-common . google-make-newline-indent))
+                                        ; (use-package cc-mode
+                                        ;   :ensure nil
+                                        ;   :config
+                                        ;   (setq flycheck-clang-language-standard "c++11")
+                                        ;   (global-set-key (kbd "C-c C-r") 'compile)
+                                        ;   (global-set-key (kbd "C-c C-t") 'gdb)
+                                        ;   (setq-default c-basic-offset 4)
+                                        ;   (setq flycheck-clang-language-standard "gnu99"))
 
 ;; built-in support sh-mode
 ;; (use-package sh-mode)
 
-(use-package go-mode)
+(use-package go-mode
+  :config
+  (setq compile-command "echo Building... && go build -v && echo Testing... && go test -v && echo Linter... && golint")
+  (setq compilation-read-command nil)
+  (defun go-mode-before-save-hook ()
+    (when (eq major-mode 'go-mode)
+      (lsp-format-buffer)))
+  (when (executable-find "goimports")
+    (setq gofmt-command "goimports"))
+  (add-hook 'before-save-hook #'gofmt-before-save)
+
+  (defun maple/go-packages-function()
+    "Return a list of all Go packages, using `gopkgs'."
+    (sort (process-lines "gopkgs") #'string<))
+  (setq go-packages-function 'maple/go-packages-function)
+
+  :bind
+  (:map go-mode-map
+        ("C-c C-r" . compile)
+        ([remap xref-find-definitions] . godef-jump)
+        ("C-c R" . go-remove-unused-imports)))
+(use-package go-fill-struct
+  ;; go get -u github.com/davidrjenni/reftools/cmd/fillstruct
+  )
+(use-package go-impl
+  ;; go get -u github.com/josharian/impl
+  ;; go get -u golang.org/x/tools/cmd/godoc
+  )
+(use-package go-tag
+  ;; go get github.com/fatih/gomodifytags
+  :bind (:map go-mode-map
+              ("C-c t" . go-tag-add)
+              ("C-c T" . go-tag-remove))
+  :config (setq go-tag-args (list "-transform" "camelcase")))
+
 
 (use-package rust-mode
   :init
@@ -98,6 +166,10 @@
   (add-hook 'haskell-mode-hook
             (lambda ()
               (setq compile-command "stack build --fast --test --bench --no-run-tests --no-run-benchmarks"))))
+
+(use-package lua-mode
+  :mode
+  ("\\.lua$" . lua-mode))
 
 (use-package docker
   :commands docker-mode)
