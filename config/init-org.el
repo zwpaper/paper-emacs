@@ -14,7 +14,8 @@
   :bind (("C-M-f" . org-do-demote)
          ("C-M-b" . org-do-promote)
          ("C-M-p" . org-move-subtree-up)
-         ("C-M-n" . org-move-subtree-down))
+         ("C-M-n" . org-move-subtree-down)
+         ("C-M-<return>" . org-insert-todo-subheading))
   :config
   (setq org-log-done t)
   (setq org-agenda-files (list (concat org-path "/tasks"))))
@@ -158,6 +159,10 @@
   (setq deft-use-filename-as-title t)
   :bind
   (("M-s M-o" . deft)))
+
+(use-package org-bullets
+  :hook
+  (org-mode . (lambda () (org-bullets-mode 1))))
 
 (provide 'init-org)
 ;;; init-org.el ends here
