@@ -3,5 +3,9 @@
 # key: test.func
 # --
 func Test$0(t *testing.T) {
-     
+     cases := map[string]$1{}
+
+     for name, target := range cases {
+
+     }
 }
