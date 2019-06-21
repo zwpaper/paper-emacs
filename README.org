@@ -84,7 +84,9 @@ Because some packages need fully reload, It may need several restarting Emacs.
      (add-to-list 'exec-path "/usr/local/bin")
      (add-to-list 'load-path "~/.emacs.d/plugin")
      (add-to-list 'load-path "~/.emacs.d/config")
-     (setq ispell-program-name "/usr/local/bin/ispell")
+     (setq ispell-program-name "aspell"
+           ;; force the English dictionary, support Camel Case spelling check (tested with aspell 0.6)
+           ispell-extra-args '("--sug-mode=ultra" "--lang=en_US" "--run-together"))
    #+end_src
 
 *** General
@@ -644,7 +646,10 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (pyim-isearch-mode 1)
 
     ;; 使用 pupup-el 来绘制选词框
-    (setq pyim-page-tooltip 'popup)
+    (use-package posframe)
+    (if window-system
+        (setq pyim-page-tooltip 'posframe)
+      (setq pyim-page-tooltip 'popup))
 
     ;; 选词框显示5个候选词
     (setq pyim-page-length 5)
