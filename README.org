@@ -316,7 +316,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
      (use-package nyan-mode
        :hook
        (after-init . nyan-mode))
-     (use-package zenburn
+     (use-package zenburn-theme
        :config
        ;; use variable-pitch fonts for some headings and titles
        (setq zenburn-use-variable-pitch t)
@@ -438,12 +438,12 @@ Because some packages need fully reload, It may need several restarting Emacs.
 ** TBD
 
 #+begin_src emacs-lisp
-        ;;; var
+          ;;; var
                                           ;(defvar program-mode (haskell-mode c-mode emacs-lisp-mode lisp-interaction-mode lisp-mode
                                           ;                sh-mode c++-mode makefile-gmake-mode python-mode js-mode
                                           ;                go-mode rust-mode lua-mode minibuffer-inactive-mode))
 
-  ;;; local package
+    ;;; local package
   (use-package init-org
     :ensure nil)
   (use-package init-languages
@@ -453,7 +453,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
   (use-package multiple-cursors)
 
-  ;;; Awesome pair
+    ;;; Awesome pair
   (use-package awesome-pair
     :ensure nil
     :config
@@ -501,7 +501,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
                    ))
       (add-hook hook '(lambda () (awesome-pair-mode 1)))))
 
-        ;;; Treemacs
+          ;;; Treemacs
   (use-package treemacs
     :defer t
     :init
@@ -540,7 +540,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :ensure t
     :config (treemacs-icons-dired-mode))
 
-  ;;; Bookmarks
+    ;;; Bookmarks
   (setq bookmark-save-flag 1) ; everytime bookmark is changed, automatically save it
   (use-package recentf
     :init
@@ -556,7 +556,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (setq epa-pinentry-mode 'loopback))
 
   ;; Global Settings:
-  ;;; Key bindings
+    ;;; Key bindings
   (global-set-key (kbd "M-m") 'goto-line)
   ;; scroll one line only when past the bottom of screen
   (setq scroll-conservatively 1)
@@ -593,11 +593,11 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (global-set-key (kbd "C-c C-a") 'mc/mark-all-like-this)
 
   ;; Move backup file to dot folder
-  ;;; Don't clutter up directories with files~
+    ;;; Don't clutter up directories with files~
   (setq backup-directory-alist
         `((".*" . ,temporary-file-directory)))
 
-  ;;; Don't clutter with #files either
+    ;;; Don't clutter with #files either
   (setq auto-save-file-name-transforms
         `((".*" ,temporary-file-directory t)))
 
@@ -628,7 +628,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (defalias 'ls '(lsd $*))
     )
 
-  ;;; Global
+    ;;; Global
 
   (setq inhibit-compacting-font-caches t)
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
@@ -685,77 +685,39 @@ Because some packages need fully reload, It may need several restarting Emacs.
      ("C-;" . pyim-delete-word-from-personal-buffer)))
   (global-set-key (kbd "C-\\") 'toggle-input-method)
 
-  ;; Helm TODO
-  ;;(use-package helm-projectile)
-  ;;(use-package helm
-  ;;  :init
-  ;;  (require 'helm-config)
-  ;;  :config
-  ;;  (helm-mode 1)
-  ;;  (helm-autoresize-mode 1)
-  ;;  (global-set-key (kbd "M-x") 'helm-M-x)
-  ;;  (global-set-key (kbd "M-y") 'helm-show-kill-ring)
-  ;;  (global-set-key (kbd "C-c h") 'helm-command-prefix)
-  ;;  (global-set-key (kbd "C-x b") 'helm-mini)
-  ;;  (global-set-key (kbd "C-x C-f") 'helm-find-files)
-  ;;  (global-set-key (kbd "C-s") 'helm-occur)
-  ;;  (global-set-key (kbd "C-h SPC") 'helm-all-mark-rings)
-  ;;  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-  ;;  (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
-  ;;  (setq helm-split-window-in-side-p           t
-  ;;        helm-move-to-line-cycle-in-source     t
-  ;;        helm-ff-search-library-in-sexp        t
-  ;;        helm-M-x-fuzzy-match                  t   ; 模糊搜索
-  ;;        helm-buffers-fuzzy-matching           t
-  ;;        helm-locate-fuzzy-match               t
-  ;;        helm-recentf-fuzzy-match              t
-  ;;        helm-scroll-amount                    8
-  ;;        helm-ff-file-name-history-use-recentf t)
-  ;;
-  ;;  (projectile-mode)
-  ;;  (helm-projectile-on))
-
 
   (use-package ivy
+    :diminish ivy-mode
     :config
     (ivy-mode 1)
     (setq ivy-use-virtual-buffers t)
     (setq enable-recursive-minibuffers t)
     ;; enable this if you want `swiper' to use it
     ;; (setq search-default-mode #'char-fold-to-regexp)
-    (global-set-key "\C-s" 'swiper)
-    (global-set-key (kbd "C-c C-r") 'ivy-resume)
-    (global-set-key (kbd "<f6>") 'ivy-resume)
-    (global-set-key (kbd "M-x") 'counsel-M-x)
-    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-    (global-set-key (kbd "<f1> l") 'counsel-find-library)
-    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-    (global-set-key (kbd "C-c g") 'counsel-git)
-    (global-set-key (kbd "C-c j") 'counsel-git-grep)
-    (global-set-key (kbd "C-c k") 'counsel-ag)
-    (global-set-key (kbd "C-x l") 'counsel-locate)
-    (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
     (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
     :bind
-    ("M-y" . counsel-yank-pop))
+    ("C-s" . swiper)
+    ("C-c C-r" . ivy-resume)
+    ("M-y" . counsel-yank-pop)
+    ("M-x" . counsel-M-x)
+    ("C-c g" . counsel-git)
+    ("C-c j" . counsel-git-grep)
+    ("C-c k" . counsel-ag)
+    ("C-x C-f" . counsel-find-file)
+    (:map evil-normal-state-map
+          ("fl" . counsel-locate)
+          ("ff" . counsel-describe-function)
+          ("fv" . counsel-describe-variable)
+          ("fl" . counsel-find-library)
+          ("fi" . counsel-info-lookup-symbol)
+          ("fu" . 'counsel-unicode-char))
+    (:map minibuffer-local-map
+          ("C-r" . counsel-minibuffer-history)))
 
   ;; magit
   (use-package magit
     :bind
     ("C-x g" . magit-status))
-
-    ;;; sr speedbar
-                                          ;(require 'sr-speedbar)
-                                          ;(setq sr-speedbar-right-side nil)
-                                          ;(setq sr-speedbar-width-console 20)
-                                          ;(setq sr-speedbar-default-width 20)
-                                          ;(setq sr-speedbar-max-width 20)
-                                          ;(sr-speedbar-width-console 10)
-                                          ; (sr-speedbar-max-width 10)
-                                          ;(global-set-key (kbd "C-c l") 'sr-speedbar-toggle)
 
 
   ;; Indent Guide
