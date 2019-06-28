@@ -1,3 +1,8 @@
 [submodule "plugin/nerd-icons"]
 	path = plugin/nerd-icons
 	url = git@github.com:twlz0ne/nerd-icons.el.git
+	shallow = true
+[submodule "plugin/awesome-tab"]
+	path = plugin/awesome-tab
+	url = git@github.com:manateelazycat/awesome-tab.git
+	shallow = true

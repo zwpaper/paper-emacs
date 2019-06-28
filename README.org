@@ -295,6 +295,15 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
 -----
 
+** Evil
+
+   #+begin_src emacs-lisp
+     (use-package evil
+       :config
+       (evil-mode 1)
+       (setq evil-default-state 'emacs)
+       (define-key evil-emacs-state-map (kbd "C-o") 'evil-execute-in-normal-state))
+   #+end_src
 ** Funny Skins
    #+begin_src emacs-lisp
      (use-package emojify
@@ -307,21 +316,32 @@ Because some packages need fully reload, It may need several restarting Emacs.
      (use-package nyan-mode
        :hook
        (after-init . nyan-mode))
-     (use-package doom-themes
+     (use-package zenburn
        :config
-       ;; Global settings (defaults)
-       (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-             doom-themes-enable-italic t) ; if nil, italics is universally disabled
+       ;; use variable-pitch fonts for some headings and titles
+       (setq zenburn-use-variable-pitch t)
 
-       ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
-       ;; may have their own settings.
-       (load-theme 'doom-one t)
-                                             ; (doom-themes-treemacs-config)
-       ;; Corrects (and improves) org-mode's native fontification.
-       (doom-themes-org-config))
+       ;; scale headings in org-mode
+       (setq zenburn-scale-org-headlines t)
+
+       ;; scale headings in outline-mode
+       (setq zenburn-scale-outline-headlines t))
    #+end_src
 
-
+*** Tab
+#+begin_src emacs-lisp
+  (use-package awesome-tab
+    :load-path "plugin/awesome-tab"
+    :config
+    (awesome-tab-mode t)
+    (setq awesome-tab-style "box")
+    :bind
+    (:map evil-normal-state-map
+     ("tf" . awesome-tab-forward-tab)
+     ("ts" . awesome-tab-switch-group)
+     ("tb" . awesome-tab-backward-tab))
+    )
+#+end_src
 *** Nerd Icons
     install [[https://github.com/ryanoasis/nerd-fonts][Nerd Icons]] before using this
 
@@ -377,6 +397,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
 ** Kill ring
    #+begin_src emacs-lisp
+     (setenv "LANG" "en_US.UTF-8")
      (defun isolate-kill-ring()
        "Isolate Emacs kill ring from OS X system pasteboard.
      This function is only necessary in window system."
@@ -663,35 +684,61 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (global-set-key (kbd "C-\\") 'toggle-input-method)
 
   ;; Helm TODO
-  (use-package helm-projectile)
-  (use-package helm
-    :init
-    (require 'helm-config)
+  ;;(use-package helm-projectile)
+  ;;(use-package helm
+  ;;  :init
+  ;;  (require 'helm-config)
+  ;;  :config
+  ;;  (helm-mode 1)
+  ;;  (helm-autoresize-mode 1)
+  ;;  (global-set-key (kbd "M-x") 'helm-M-x)
+  ;;  (global-set-key (kbd "M-y") 'helm-show-kill-ring)
+  ;;  (global-set-key (kbd "C-c h") 'helm-command-prefix)
+  ;;  (global-set-key (kbd "C-x b") 'helm-mini)
+  ;;  (global-set-key (kbd "C-x C-f") 'helm-find-files)
+  ;;  (global-set-key (kbd "C-s") 'helm-occur)
+  ;;  (global-set-key (kbd "C-h SPC") 'helm-all-mark-rings)
+  ;;  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+  ;;  (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+  ;;  (setq helm-split-window-in-side-p           t
+  ;;        helm-move-to-line-cycle-in-source     t
+  ;;        helm-ff-search-library-in-sexp        t
+  ;;        helm-M-x-fuzzy-match                  t   ; 模糊搜索
+  ;;        helm-buffers-fuzzy-matching           t
+  ;;        helm-locate-fuzzy-match               t
+  ;;        helm-recentf-fuzzy-match              t
+  ;;        helm-scroll-amount                    8
+  ;;        helm-ff-file-name-history-use-recentf t)
+  ;;
+  ;;  (projectile-mode)
+  ;;  (helm-projectile-on))
+
+
+  (use-package ivy
     :config
-    (helm-mode 1)
-    (helm-autoresize-mode 1)
-    (global-set-key (kbd "M-x") 'helm-M-x)
-    (global-set-key (kbd "M-y") 'helm-show-kill-ring)
-    (global-set-key (kbd "C-c h") 'helm-command-prefix)
-    (global-set-key (kbd "C-x b") 'helm-mini)
-    (global-set-key (kbd "C-x C-f") 'helm-find-files)
-    (global-set-key (kbd "C-s") 'helm-occur)
-    (global-set-key (kbd "C-h SPC") 'helm-all-mark-rings)
-    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
-    (setq helm-split-window-in-side-p           t
-          helm-move-to-line-cycle-in-source     t
-          helm-ff-search-library-in-sexp        t
-          helm-M-x-fuzzy-match                  t   ; 模糊搜索
-          helm-buffers-fuzzy-matching           t
-          helm-locate-fuzzy-match               t
-          helm-recentf-fuzzy-match              t
-          helm-scroll-amount                    8
-          helm-ff-file-name-history-use-recentf t)
-
-    (projectile-mode)
-    (helm-projectile-on))
-
+    (ivy-mode 1)
+    (setq ivy-use-virtual-buffers t)
+    (setq enable-recursive-minibuffers t)
+    ;; enable this if you want `swiper' to use it
+    ;; (setq search-default-mode #'char-fold-to-regexp)
+    (global-set-key "\C-s" 'swiper)
+    (global-set-key (kbd "C-c C-r") 'ivy-resume)
+    (global-set-key (kbd "<f6>") 'ivy-resume)
+    (global-set-key (kbd "M-x") 'counsel-M-x)
+    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+    (global-set-key (kbd "<f1> l") 'counsel-find-library)
+    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+    (global-set-key (kbd "C-c g") 'counsel-git)
+    (global-set-key (kbd "C-c j") 'counsel-git-grep)
+    (global-set-key (kbd "C-c k") 'counsel-ag)
+    (global-set-key (kbd "C-x l") 'counsel-locate)
+    (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+    (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+    :bind
+    ("M-y" . counsel-yank-pop))
 
   ;; magit
   (use-package magit
