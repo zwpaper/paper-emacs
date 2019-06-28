@@ -114,40 +114,6 @@
 ;; built-in support sh-mode
 ;; (use-package sh-mode)
 
-(use-package go-mode
-  :config
-  (setq compile-command "echo Building... && go build -v && echo Testing... && go test -v && echo Linter... && golint")
-  (setq compilation-read-command nil)
-  (defun go-mode-before-save-hook ()
-    (when (eq major-mode 'go-mode)
-      (lsp-format-buffer)))
-  (when (executable-find "goimports")
-    (setq gofmt-command "goimports"))
-  (add-hook 'before-save-hook #'gofmt-before-save)
-
-  (defun maple/go-packages-function()
-    "Return a list of all Go packages, using `gopkgs'."
-    (sort (process-lines "gopkgs") #'string<))
-  (setq go-packages-function 'maple/go-packages-function)
-
-  :bind
-  (:map go-mode-map
-        ("C-c C-r" . compile)
-        ([remap xref-find-definitions] . godef-jump)
-        ("C-c R" . go-remove-unused-imports)))
-(use-package go-fill-struct
-  ;; go get -u github.com/davidrjenni/reftools/cmd/fillstruct
-  )
-(use-package go-impl
-  ;; go get -u github.com/josharian/impl
-  ;; go get -u golang.org/x/tools/cmd/godoc
-  )
-(use-package go-tag
-  ;; go get github.com/fatih/gomodifytags
-  :bind (:map go-mode-map
-              ("C-c t" . go-tag-add)
-              ("C-c T" . go-tag-remove))
-  :config (setq go-tag-args (list "-transform" "camelcase")))
 
 
 (use-package rust-mode
