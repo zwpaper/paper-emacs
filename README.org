@@ -230,6 +230,9 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
 ** OS Related
     #+begin_src emacs-lisp
+      (menu-bar-mode -1)
+      (tool-bar-mode     -1)
+      (tooltip-mode      -1)
       (blink-cursor-mode -1)
       (add-hook 'before-save-hook 'whitespace-cleanup)
       (add-hook 'before-save-hook (lambda() (delete-trailing-whitespace)))
@@ -283,14 +286,14 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
 *** macOS
 #+begin_src emacs-lisp
-(menu-bar-mode     -1)
-(toggle-scroll-bar -1)
-(tool-bar-mode     -1)
-(tooltip-mode      -1)
-(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-(add-to-list 'default-frame-alist '(ns-appearance . dark)) ;; assuming you are using a dark theme
-(setq ns-use-proxy-icon nil)
-(setq frame-title-format nil)
+(when (display-graphic-p)
+  (toggle-scroll-bar -1)
+  (tool-bar-mode -1)
+  (setq ns-use-proxy-icon nil)
+  (setq frame-title-format nil)
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+  ;; assuming you are using a dark theme
+  (add-to-list 'default-frame-alist '(ns-appearance . dark)))
 #+end_src
 
 -----
@@ -356,28 +359,29 @@ Because some packages need fully reload, It may need several restarting Emacs.
       (add-to-list 'load-path "~/.emacs.d/plugin/nerd-icons")
       (use-package nerd-icons
         :ensure nil)
+      (set-face-attribute 'default nil
+                          :family "Hack Nerd Font"
+                          :height 140
+                          :weight 'normal
+                          :width 'normal)
 
-      (if (display-graphic-p)
-          (progn
-            ;; Set default font
-            ;;; 如果配置好，这24个汉字与下面个48英文字母应该等长
-            ;;; here are 24 chinese and 48 english chars, ended.
-            (set-face-attribute 'default nil
-                                :family "Hack Nerd Font"
-                                :height 140
-                                :weight 'normal
-                                :width 'normal)
-            (set-fontset-font t 'han      (font-spec
-                                           :family "PingFang SC"
-                                           :size 16
-                                           ))
-            (set-fontset-font t 'cjk-misc (font-spec
-                                           :family "PingFang SC"
-                                           :size 16
-                                           ))
-            ))
+      (cond ((eq system-type 'windows-nt)
+             ;; Windows-specific code goes here.
+             )
+            ((eq system-type 'gnu/linux)
+             ;; Linux-specific code goes here.
+             )
+            ((eq system-type 'darwin)
+             ;; macOS code goes here.
+             (set-fontset-font t 'han      (font-spec
+                                            :family "PingFang SC"
+                                            :size 16
+                                            ))
+             (set-fontset-font t 'cjk-misc (font-spec
+                                            :family "PingFang SC"
+                                            :size 16
+                                            ))))
 
-      ;; (setq face-font-rescale-alist '(("PingFang SC" . 1.0)))
     #+end_src
 
 *** Show color in buffers
