@@ -673,9 +673,11 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (pyim-isearch-mode 1)
 
     ;; 使用 pupup-el 来绘制选词框
-    (use-package posframe)
     (if window-system
+        (progn
+        (use-package posframe)
         (setq pyim-page-tooltip 'posframe)
+        )
       (setq pyim-page-tooltip 'popup))
 
     ;; 选词框显示5个候选词
@@ -693,6 +695,15 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (use-package ivy
     :diminish ivy-mode
     :config
+    (use-package swiper)
+    (use-package counsel
+      :bind
+      ("M-y" . counsel-yank-pop)
+      ("M-x" . counsel-M-x)
+      ("C-c g" . counsel-git)
+      ("C-c j" . counsel-git-grep)
+      ("C-c k" . counsel-ag)
+      ("C-x C-f" . counsel-find-file))
     (ivy-mode 1)
     (setq ivy-use-virtual-buffers t)
     (setq enable-recursive-minibuffers t)
@@ -702,12 +713,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :bind
     ("C-s" . swiper)
     ("C-c C-r" . ivy-resume)
-    ("M-y" . counsel-yank-pop)
-    ("M-x" . counsel-M-x)
-    ("C-c g" . counsel-git)
-    ("C-c j" . counsel-git-grep)
-    ("C-c k" . counsel-ag)
-    ("C-x C-f" . counsel-find-file)
     (:map evil-normal-state-map
           ("fl" . counsel-locate)
           ("ff" . counsel-describe-function)

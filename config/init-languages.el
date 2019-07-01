@@ -74,18 +74,19 @@
               ([remap xref-find-references] . lsp-ui-peek-find-references)
               ("C-c u" . lsp-ui-imenu)))
 
-(require 'company-posframe)
-(company-posframe-mode 1)
-(require 'desktop) ;this line is needed.
-(push '(company-posframe-mode . nil)
-      desktop-minor-mode-table)
-
 (use-package company-lsp
   :after company lsp-mode
   :init
   (setq company-lsp-cache-candidates 'auto)
   :commands company-lsp
   :config
+  (if (display-graphic-p)
+      (progn
+        (require 'company-posframe)
+        (company-posframe-mode 1)
+        (require 'desktop) ;this line is needed.
+        (push '(company-posframe-mode . nil)
+              desktop-minor-mode-table)))
   (push 'company-lsp company-backends)
   :hook
   (after-init . global-company-mode))
