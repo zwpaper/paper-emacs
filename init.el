@@ -17,11 +17,12 @@
         ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
         ;; ("melpa" . "https://melpa.org/packages/")
         ;; ("melpa" . "http://elpa.emacs-china.org/melpa/")
-	    ;; ("melpa-stable" . "https://stable.melpa.org/packages/")
+        ;; ("melpa-stable" . "https://stable.melpa.org/packages/")
         ("gnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
         ("org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
         ))
 (package-initialize)
+(package-refresh-contents)
 
 (org-babel-load-file (expand-file-name "~/.emacs.d/README.org"))
 (garbage-collect)
