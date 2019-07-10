@@ -64,6 +64,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
    #+begin_src emacs-lisp
      (setq manual-pakages
            '(
+             "https://raw.githubusercontent.com/yefeiyu/pyim-wbdict/master/pyim-wbdict-qingge.pyim"
              "https://raw.githubusercontent.com/manateelazycat/aweshell/master/aweshell.el"
              "https://raw.githubusercontent.com/manateelazycat/awesome-pair/master/awesome-pair.el"
              "https://raw.githubusercontent.com/manateelazycat/color-rg/master/color-rg.el"
@@ -646,13 +647,13 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
   ;; Pyim
   (use-package pyim
+    :demand t
     :config
     ;; 五笔用户使用 wbdict 词库
-    (use-package pyim-wbdict
-      :config (pyim-wbdict-v98-enable))
+    ;; manuam package downloaded qingge dict
 
     (setq default-input-method "pyim")
-    (setq pyim-default-scheme 'wubi)
+    (setq pyim-default-scheme 'qingge)
 
     ;; 设置 pyim 探针设置，这是 pyim 高级功能设置，可以实现 *无痛* 中英文切换 :-)
     ;; 我自己使用的中英文动态切换规则是：
@@ -668,9 +669,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (setq-default pyim-punctuation-half-width-functions
                   '(pyim-probe-punctuation-line-beginning
                     pyim-probe-punctuation-after-punctuation))
-
-    ;; 开启拼音搜索功能
-    (pyim-isearch-mode 1)
 
     ;; 使用 pupup-el 来绘制选词框
     (if window-system
