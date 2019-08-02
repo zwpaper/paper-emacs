@@ -1,3 +1,9 @@
 [submodule "plugin/nerd-icons"]
 	path = plugin/nerd-icons
 	url = git@github.com:twlz0ne/nerd-icons.el.git
+[submodule "fuz.el"]
+	path = plugin/fuz
+	url = git@github.com:cireu/fuz.el.git
+[submodule "snails"]
+	path = plugin/snails
+	url = git@github.com:manateelazycat/snails.git
