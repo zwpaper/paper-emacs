@@ -9,6 +9,8 @@
 
 (use-package go-mode
   :config
+  (exec-path-from-shell-copy-env "GO111MODULE")
+  (exec-path-from-shell-copy-env "GOPROXY")
   (setq compile-command "echo Building... && go build -v && echo Testing... && go test -v && echo Linter... && golint")
   (setq compilation-read-command nil)
   (defun go-mode-before-save-hook ()
@@ -21,16 +23,17 @@
     (or maple/go-packages-list
         (setq maple/go-packages-list (go-packages-native))))
 
-  (add-hook 'go-mode-hook
-            (lambda() (run-with-idle-timer 1 nil 'maple/go-packages)))
-
   (setq go-packages-function 'maple/go-packages)
 
   :bind
   (:map go-mode-map
         ("C-c C-r" . compile)
         ([remap xref-find-definitions] . godef-jump)
-        ("C-c R" . go-remove-unused-imports)))
+        ("C-c R" . go-remove-unused-imports))
+  :hook
+  ;; (go-mode . (lambda() (run-with-idle-timer 10 nil 'maple/go-packages)))
+  ((before-save . go-mode-before-save-hook)))
+
 (use-package go-fill-struct
   ;; go get -u github.com/davidrjenni/reftools/cmd/fillstruct
   )

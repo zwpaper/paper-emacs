@@ -14,82 +14,86 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
 
 * Essentials
+
   There are some system package dependency, should be installed, check [[https://github.com/zwpaper/dotfile][dot file]]
 
 **  Use package
 
-  #+begin_src emacs-lisp
-    (unless (package-installed-p 'use-package)
-      (package-refresh-contents)
-      (package-install 'use-package))
-    (eval-when-compile
-      (require 'use-package))
-    (setq use-package-always-ensure t)
-  #+end_src
+#+begin_src emacs-lisp
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+  (eval-when-compile
+    (require 'use-package))
+  (setq use-package-always-ensure t)
+#+end_src
 
 
 ** Startup Optimization
-   Optimize startup time.
-   #+BEGIN_SRC emacs-lisp
-     (defvar default-file-name-handler-alist file-name-handler-alist)
-     (setq file-name-handler-alist nil)
-     (setq gc-cons-threshold 80000000)
-     (add-hook 'emacs-startup-hook
-               (lambda ()
-                 "Restore defalut values after init."
-                 (setq file-name-handler-alist default-file-name-handler-alist)
-                 (setq gc-cons-threshold 800000)
-                 (if (boundp 'after-focus-change-function)
-                     (add-function :after after-focus-change-function
-                                   (lambda ()
-                                     (unless (frame-focus-state)
-                                       (garbage-collect))))
-                   (add-hook 'focus-out-hook 'garbage-collect))))
 
-     ;; Start up dashboard
-     (use-package dashboard
-       :ensure t
-       :diminish dashboard-mode
-       :config
-       (setq dashboard-banner-logo-title "Welcome to Black Magic")
-       (setq dashboard-startup-banner "~/.emacs.d/config/ironman.png")
-       (setq dashboard-items '((recents  . 10)
-                               (bookmarks . 10)))
-       (add-to-list 'dashboard-items '(agenda) t)
-       (dashboard-setup-startup-hook))
-   #+END_SRC
+   Optimize startup time.
+
+#+BEGIN_SRC emacs-lisp
+  (defvar default-file-name-handler-alist file-name-handler-alist)
+  (setq file-name-handler-alist nil)
+  (setq gc-cons-threshold 80000000)
+  (add-hook 'emacs-startup-hook
+         (lambda ()
+       "Restore defalut values after init."
+       (setq file-name-handler-alist default-file-name-handler-alist)
+       (setq gc-cons-threshold 800000)
+       (if (boundp 'after-focus-change-function)
+           (add-function :after after-focus-change-function
+                 (lambda ()
+                   (unless (frame-focus-state)
+                     (garbage-collect))))
+         (add-hook 'focus-out-hook 'garbage-collect))))
+
+  ;; Start up dashboard
+  (use-package dashboard
+    :ensure t
+    :diminish dashboard-mode
+    :config
+    (setq dashboard-banner-logo-title "Welcome to Black Magic")
+    (setq dashboard-startup-banner "~/.emacs.d/config/ironman.png")
+    (setq dashboard-items '((recents  . 10)
+                            (bookmarks . 10)))
+    (add-to-list 'dashboard-items '(agenda) t)
+    (dashboard-setup-startup-hook))
+#+END_SRC
 
 ** Package
+
    Download some packages from Internet
-   #+begin_src emacs-lisp
-     (setq manual-pakages
-           '(
-             "https://raw.githubusercontent.com/yefeiyu/pyim-wbdict/master/pyim-wbdict-qingge.pyim"
-             "https://raw.githubusercontent.com/manateelazycat/aweshell/master/aweshell.el"
-             "https://raw.githubusercontent.com/manateelazycat/awesome-pair/master/awesome-pair.el"
-             "https://raw.githubusercontent.com/manateelazycat/color-rg/master/color-rg.el"
-             "https://raw.githubusercontent.com/manateelazycat/thing-edit/master/thing-edit.el"
-             "https://raw.githubusercontent.com/joaotavora/autopair/master/autopair.el"
-             "https://raw.githubusercontent.com/zk-phi/indent-guide/master/indent-guide.el"
-             "https://raw.githubusercontent.com/beancount/beancount/master/editors/emacs/beancount.el"))
 
-     (while manual-pakages
-       (url-copy-file (car manual-pakages)
-                      (concat "~/.emacs.d/plugin/" (car (last (split-string (car manual-pakages) "/"))))
-                      t)
-       (setq manual-pakages (cdr manual-pakages)))
+#+begin_src emacs-lisp
+  (setq manual-pakages
+        '(
+          "https://raw.githubusercontent.com/yefeiyu/pyim-wbdict/master/pyim-wbdict-qingge.pyim"
+          "https://raw.githubusercontent.com/manateelazycat/aweshell/master/aweshell.el"
+          "https://raw.githubusercontent.com/manateelazycat/awesome-pair/master/awesome-pair.el"
+          "https://raw.githubusercontent.com/manateelazycat/color-rg/master/color-rg.el"
+          "https://raw.githubusercontent.com/manateelazycat/thing-edit/master/thing-edit.el"
+          "https://raw.githubusercontent.com/joaotavora/autopair/master/autopair.el"
+          "https://raw.githubusercontent.com/zk-phi/indent-guide/master/indent-guide.el"
+          "https://raw.githubusercontent.com/beancount/beancount/master/editors/emacs/beancount.el"))
 
-     ;;; Vars
-     (setq-default indent-tabs-mode nil)
-     (setq-default tab-width 4)
-     (add-to-list 'exec-path "/usr/local/bin")
-     (add-to-list 'load-path "~/.emacs.d/plugin")
-     (add-to-list 'load-path "~/.emacs.d/config")
-     (setq ispell-program-name "aspell"
-           ;; force the English dictionary, support Camel Case spelling check (tested with aspell 0.6)
-           ispell-extra-args '("--sug-mode=ultra" "--lang=en_US" "--run-together"))
+  (while manual-pakages
+    (url-copy-file (car manual-pakages)
+                   (concat "~/.emacs.d/plugin/" (car (last (split-string (car manual-pakages) "/"))))
+                   t)
+    (setq manual-pakages (cdr manual-pakages)))
 
-   #+end_src
+  ;;; Vars
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
+  (add-to-list 'exec-path "/usr/local/bin")
+  (add-to-list 'load-path "~/.emacs.d/plugin")
+  (add-to-list 'load-path "~/.emacs.d/config")
+  (setq ispell-program-name "aspell"
+        ;; force the English dictionary, support Camel Case spelling check (tested with aspell 0.6)
+        ispell-extra-args '("--sug-mode=ultra" "--lang=en_US" "--run-together"))
+#+end_src
 
 
 *** General
@@ -105,30 +109,30 @@ Because some packages need fully reload, It may need several restarting Emacs.
 #+end_src
 
 **** Thing Edit
-     #+begin_src emacs-lisp
-       ;; unbind C-w and M-w first, for binding in thing edit
-       (global-unset-key (kbd "C-w"))
-       (global-unset-key (kbd "M-w"))
-       (use-package thing-edit
-         :ensure nil
-         :bind
-         (("C-w C-w" . thing-cut-word)
-          ("M-w M-w" . thing-copy-word)
-          ("C-w C-r" . thing-cut-region-or-line)
-          ("M-w M-r" . thing-copy-region-or-line)
-          ("C-w C-s" . thing-cut-sexp)
-          ("M-w M-s" . thing-copy-sexp)
-          ("C-w C-f" . thing-cut-filename)
-          ("M-w M-f" . thing-copy-filename)
-          ("C-w C-u" . thing-cut-url)
-          ("M-w M-u" . thing-copy-url))
-          ("C-w C-p" . thing-cut-parentheses)
-          ("M-w M-p" . thing-copy-parentheses)
-          ("C-w C-c" . thing-cut-comment)
-          ("M-w M-c" . thing-copy-comment)
-          ("C-w C-b" . thing-cut-whole-buffer)
-          ("M-w M-b" . thing-copy-whole-buffer))
-     #+end_src
+#+begin_src emacs-lisp
+  ;; unbind C-w and M-w first, for binding in thing edit
+  (global-unset-key (kbd "C-w"))
+  (global-unset-key (kbd "M-w"))
+  (use-package thing-edit
+    :ensure nil
+    :bind
+    (("C-w C-w" . thing-cut-word)
+     ("M-w M-w" . thing-copy-word)
+     ("C-w C-r" . thing-cut-region-or-line)
+     ("M-w M-r" . thing-copy-region-or-line)
+     ("C-w C-s" . thing-cut-sexp)
+     ("M-w M-s" . thing-copy-sexp)
+     ("C-w C-f" . thing-cut-filename)
+     ("M-w M-f" . thing-copy-filename)
+     ("C-w C-u" . thing-cut-url)
+     ("M-w M-u" . thing-copy-url))
+    ("C-w C-p" . thing-cut-parentheses)
+    ("M-w M-p" . thing-copy-parentheses)
+    ("C-w C-c" . thing-cut-comment)
+    ("M-w M-c" . thing-copy-comment)
+    ("C-w C-b" . thing-cut-whole-buffer)
+    ("M-w M-b" . thing-copy-whole-buffer))
+#+end_src
 
 **** White spaces
 #+begin_src emacs-lisp
@@ -181,7 +185,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
               (call-interactively #'electric-pair-delete-pair)
             (call-interactively #'backward-delete-char-untabify))))))
 
-  (global-set-key (kbd "C-<backspace>") (lambda ()
+  (global-set-key (kbd "<C-backspace>") (lambda ()
                                           (interactive)
                                           (moon-hungry-delete)))
 
@@ -218,131 +222,149 @@ Because some packages need fully reload, It may need several restarting Emacs.
             (whitespace-mode 1)))))
 
   (use-package aggressive-indent
-    :config
-    (global-aggressive-indent-mode))
+  :config
+  (global-aggressive-indent-mode))
 
   (use-package rainbow-delimiters
-    :hook
-    (prog-mode . rainbow-delimiters-mode))
+  :hook
+  (prog-mode . rainbow-delimiters-mode))
 
   (use-package highlight-parentheses
-    :hook
-    (prog-mode . highlight-parentheses-mode))
+  :hook
+  (prog-mode . highlight-parentheses-mode))
 #+end_src
+
 **** Style
 
      Check spell for org and markdown
 
-     #+BEGIN_SRC emacs-lisp
-       (use-package flyspell
-         :defer t
-         :init
-         (progn
-           (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-           (add-hook 'text-mode-hook 'flyspell-mode)))
-     #+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (use-package flyspell
+    :defer t
+    :init
+    (progn
+      (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+      (add-hook 'text-mode-hook 'flyspell-mode)))
+#+END_SRC
 
 ** OS Related
-    #+begin_src emacs-lisp
-      (menu-bar-mode -1)
-      (tool-bar-mode     -1)
-      (tooltip-mode      -1)
-      (blink-cursor-mode -1)
-      (add-hook 'before-save-hook 'whitespace-cleanup)
+#+begin_src emacs-lisp
+  (blink-cursor-mode -1)
+  (add-hook 'before-save-hook 'whitespace-cleanup)
 
-      ;; Use UTF-8 as much as possible with unix line endings
-      (prefer-coding-system 'utf-8)
-      (set-default-coding-systems 'utf-8)
-      (set-terminal-coding-system 'utf-8)
-      (set-keyboard-coding-system 'utf-8)
-      (set-selection-coding-system 'utf-8)
-      (setq locale-coding-system 'utf-8)
-      ;; Treat clipboard input as UTF-8 string first; compound text next, etc.
-      (when (display-graphic-p)
-        (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+  ;; Use UTF-8 as much as possible with unix line endings
+  (prefer-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (setq locale-coding-system 'utf-8)
+  ;; Treat clipboard input as UTF-8 string first; compound text next, etc.
+  (when (display-graphic-p)
+    (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 
-      ;; Always have a new line at the end of a file
-      (setq require-final-newline t)
+  ;; Always have a new line at the end of a file
+  (setq require-final-newline t)
 
-      ;; When buffer is closed, saves the cursor location
-      (save-place-mode 1)
+  ;; When buffer is closed, saves the cursor location
+  (save-place-mode 1)
 
-      ;; Real emacs knights don't use shift to mark things
-      (setq shift-select-mode nil)
+  ;; Real emacs knights don't use shift to mark things
+  (setq shift-select-mode nil)
 
-      ;; Real emacs knights don't use shift to mark things
-      (setq shift-select-mode nil)
+  ;; Real emacs knights don't use shift to mark things
+  (setq shift-select-mode nil)
 
-      ;; Garbage collect when Emacs is not in focus
-      (add-hook 'focus-out-hook #'garbage-collect)
+  ;; Garbage collect when Emacs is not in focus
+  (add-hook 'focus-out-hook #'garbage-collect)
 
-      ;; Merge system clipboard with Emacs
-      (setq-default select-enable-clipboard t)
+  ;; Merge system clipboard with Emacs
+  (setq-default select-enable-clipboard t)
 
-      ;; Set eww as the default browser in Emacs
-      ;; In eww, hit & to browse this url system browser
-      (setq browse-url-browser-function 'eww-browse-url)
+  ;; Set eww as the default browser in Emacs
+  ;; In eww, hit & to browse this url system browser
+  (setq browse-url-browser-function 'eww-browse-url)
 
-      ;; Prevent Extraneous Tabs
-      (setq-default indent-tabs-mode nil)
+  ;; Prevent Extraneous Tabs
+  (setq-default indent-tabs-mode nil)
 
-      ;; Use iBuffer instead of Buffer List
-      (global-set-key (kbd "C-x C-b") 'ibuffer)
+  ;; Use iBuffer instead of Buffer List
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
 
-      ;; Truncate lines
-      (global-set-key (kbd "C-x C-!") 'toggle-truncate-lines)
+  ;; Truncate lines
+  (global-set-key (kbd "C-x C-!") 'toggle-truncate-lines)
 
-      ;; Move the custom-set-variables to a different files
-      (setq custom-file "~/.emacs.d/custom-file.el")
-      (load custom-file 'noerror)
-    #+end_src
+  ;; Move the custom-set-variables to a different files
+  (setq custom-file "~/.emacs.d/custom-file.el")
+  (load custom-file 'noerror)
+#+end_src
 
 *** macOS
 #+begin_src emacs-lisp
-(when (display-graphic-p)
-  (toggle-scroll-bar -1)
-  (tool-bar-mode -1)
-  (setq ns-use-proxy-icon nil)
-  (setq frame-title-format nil)
-  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-  ;; assuming you are using a dark theme
-  (add-to-list 'default-frame-alist '(ns-appearance . dark)))
+  (when (display-graphic-p)
+    (menu-bar-mode     -1)
+    (toggle-scroll-bar -1)
+    (tool-bar-mode     -1)
+    (tooltip-mode      -1)
+    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+    (add-to-list 'default-frame-alist '(ns-appearance . dark)) ;; assuming you are using a dark theme
+    (setq ns-use-proxy-icon nil)
+    (setq frame-title-format nil)
+    (setq default-frame-alist
+          '((top + 0) (left + 1920) (width . 108) (height . 60))))
 #+end_src
 
 -----
 
 ** Evil
 
-   #+begin_src emacs-lisp
-     (use-package evil
-       :config
-       (evil-mode 1)
-       (setq evil-default-state 'emacs)
-       (define-key evil-emacs-state-map (kbd "C-o") 'evil-execute-in-normal-state))
-   #+end_src
+#+begin_src emacs-lisp
+  (use-package evil
+    :demand
+    :config
+    (evil-mode 1)
+    (setq evil-default-state 'emacs)
+    :bind
+    (("<escape>" . evil-normal-state)
+     ("C-o" . evil-execute-in-normal-state)
+     :map evil-normal-state-map
+     ("s" . avy-goto-char-2)
+     ("i" . evil-emacs-state)))
+#+end_src
+
+** Snails
+#+begin_src emacs-lisp
+  (use-package snails
+    :ensure nil
+    :load-path "~/.emacs.d/plugin/snails"
+    :bind
+    (:map global-map
+          ("C-x C-a" . snails)))
+#+end_src
+
 ** Funny Skins
-   #+begin_src emacs-lisp
-     (use-package emojify
-       :config
-       (add-hook 'org-mode-hook #'emojify-mode))
-     (use-package doom-modeline
-       :config
-       :hook
-       (after-init . doom-modeline-init))
-     (use-package nyan-mode
-       :hook
-       (after-init . nyan-mode))
-     (use-package zenburn-theme
-       :config
-       ;; use variable-pitch fonts for some headings and titles
-       (setq zenburn-use-variable-pitch t)
+#+begin_src emacs-lisp
+  (use-package emojify
+    :config
+    (add-hook 'org-mode-hook #'emojify-mode))
+  (use-package doom-modeline
+    :config
+    :hook
+    (after-init . doom-modeline-init))
+  (use-package nyan-mode
+    :hook
+    (after-init . nyan-mode))
+  (use-package zenburn-theme
+    :config
+    ;; use variable-pitch fonts for some headings and titles
+    (setq zenburn-use-variable-pitch t)
 
-       ;; scale headings in org-mode
-       (setq zenburn-scale-org-headlines t)
+    ;; scale headings in org-mode
+    (setq zenburn-scale-org-headlines t)
 
-       ;; scale headings in outline-mode
-       (setq zenburn-scale-outline-headlines t))
-   #+end_src
+    ;; scale headings in outline-mode
+    (setq zenburn-scale-outline-headlines t))
+#+end_src
 
 *** Tab
 #+begin_src emacs-lisp
@@ -355,102 +377,115 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (:map evil-normal-state-map
      ("tf" . awesome-tab-forward-tab)
      ("ts" . awesome-tab-switch-group)
-     ("tb" . awesome-tab-backward-tab))
-    )
+     ("tb" . awesome-tab-backward-tab)))
 #+end_src
+
 *** Nerd Icons
     install [[https://github.com/ryanoasis/nerd-fonts][Nerd Icons]] before using this
 
     macOS:
-    #+begin_quote
-    brew cask install font-hack-nerd-font
-    #+end_quote
+#+begin_quote
+   brew cask install font-hack-nerd-font
+#+end_quote
 
-    #+begin_src emacs-lisp
-      (use-package all-the-icons)
-      ;; should run M-x: all-the-icons-install-fonts
-      (add-to-list 'load-path "~/.emacs.d/plugin/nerd-icons")
-      (use-package nerd-icons
-        :ensure nil)
-      (set-face-attribute 'default nil
-                          :family "Hack Nerd Font"
-                          :height 140
-                          :weight 'normal
-                          :width 'normal)
+#+begin_src emacs-lisp
+  (use-package all-the-icons)
+  ;; should run M-x: all-the-icons-install-fonts
+  (add-to-list 'load-path "~/.emacs.d/plugin/nerd-icons")
+  (use-package nerd-icons
+    :ensure nil)
+  (set-face-attribute 'default nil
+                      :family "Hack Nerd Font"
+                      :height 140
+                      :weight 'normal
+                      :width 'normal)
 
-      (cond ((eq system-type 'windows-nt)
-             ;; Windows-specific code goes here.
-             )
-            ((eq system-type 'gnu/linux)
-             ;; Linux-specific code goes here.
-             )
-            ((eq system-type 'darwin)
-             ;; macOS code goes here.
-             (set-fontset-font t 'han      (font-spec
-                                            :family "PingFang SC"
-                                            :size 16
-                                            ))
-             (set-fontset-font t 'cjk-misc (font-spec
-                                            :family "PingFang SC"
-                                            :size 16
-                                            ))))
+  (cond ((eq system-type 'windows-nt)
+         ;; Windows-specific code goes here.
+         )
+        ((eq system-type 'gnu/linux)
+         ;; Linux-specific code goes here.
+         )
+        ((eq system-type 'darwin)
+         ;; macOS code goes here.
+         ))
 
-    #+end_src
+  (if (display-graphic-p)
+      (progn
+        ;; Set default font
+        ;;; 如果配置好，这24个汉字与下面个48英文字母应该等长
+        ;;; here are 24 chinese and 48 english chars, ended.
+        (set-face-attribute 'default nil
+                            :family "Hack Nerd Font"
+                            :height 140
+                            :weight 'normal
+                            :width 'normal)
+        (set-fontset-font t 'han      (font-spec
+                                       :family "PingFang SC"
+                                       :size 16
+                                       ))
+        (set-fontset-font t 'cjk-misc (font-spec
+                                       :family "PingFang SC"
+                                       :size 16
+                                       ))))
+
+  ;; (setq face-font-rescale-alist '(("PingFang SC" . 1.0)))
+#+end_src
 
 *** Show color in buffers
     + compilation
 
-    #+begin_src emacs-lisp
-      (require 'ansi-color)
-      (defun colorize-compilation-buffer ()
-        (ansi-color-apply-on-region compilation-filter-start (point)))
-      (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
-    #+end_src
+#+begin_src emacs-lisp
+  (require 'ansi-color)
+  (defun colorize-compilation-buffer ()
+    (ansi-color-apply-on-region compilation-filter-start (point)))
+  (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+#+end_src
 
 *** Show line numbers
-    #+begin_src emacs-lisp
-      (add-hook 'find-file-hooks (lambda()(display-line-numbers-mode 1)))
-    #+end_src
+#+begin_src emacs-lisp
+  (add-hook 'find-file-hooks (lambda()(display-line-numbers-mode 1)))
+#+end_src
 
 ** Kill ring
-   #+begin_src emacs-lisp
-     (setenv "LANG" "en_US.UTF-8")
-     (defun isolate-kill-ring()
-       "Isolate Emacs kill ring from OS X system pasteboard.
-     This function is only necessary in window system."
-       (interactive)
-       (setq interprogram-cut-function nil)
-       (setq interprogram-paste-function nil))
+#+begin_src emacs-lisp
+  (setenv "LANG" "en_US.UTF-8")
+  (defun isolate-kill-ring()
+    "Isolate Emacs kill ring from OS X system pasteboard.
+  This function is only necessary in window system."
+    (interactive)
+    (setq interprogram-cut-function nil)
+    (setq interprogram-paste-function nil))
 
-     (defun pasteboard-copy()
-       "Copy region to OS X system pasteboard."
-       (interactive)
-       (shell-command-on-region
-        (region-beginning) (region-end) "pbcopy"))
+  (defun pasteboard-copy()
+    "Copy region to OS X system pasteboard."
+    (interactive)
+    (shell-command-on-region
+     (region-beginning) (region-end) "pbcopy"))
 
-     (defun pasteboard-paste()
-       "Paste from OS X system pasteboard via `pbpaste' to point."
-       (interactive)
-       (shell-command-on-region
-        (point) (if mark-active (mark) (point)) "pbpaste" nil t))
+  (defun pasteboard-paste()
+    "Paste from OS X system pasteboard via `pbpaste' to point."
+    (interactive)
+    (shell-command-on-region
+     (point) (if mark-active (mark) (point)) "pbpaste" nil t))
 
-     (defun pasteboard-cut()
-       "Cut region and put on OS X system pasteboard."
-       (interactive)
-       (pasteboard-copy)
-       (delete-region (region-beginning) (region-end)))
+  (defun pasteboard-cut()
+    "Cut region and put on OS X system pasteboard."
+    (interactive)
+    (pasteboard-copy)
+    (delete-region (region-beginning) (region-end)))
 
-     (if window-system
-         (progn
-           (isolate-kill-ring)
-           ;; bind CMD+C to pasteboard-copy
-           (global-set-key (kbd "s-c") 'pasteboard-copy)
-           ;; bind CMD+V to pasteboard-paste
-           (global-set-key (kbd "s-v") 'pasteboard-paste)
-           ;; bind CMD+X to pasteboard-cut
-           (global-set-key (kbd "s-x") 'pasteboard-cut))
-       )
-   #+end_src
+  (if window-system
+      (progn
+        (isolate-kill-ring)
+        ;; bind CMD+C to pasteboard-copy
+        (global-set-key (kbd "s-c") 'pasteboard-copy)
+        ;; bind CMD+V to pasteboard-paste
+        (global-set-key (kbd "s-v") 'pasteboard-paste)
+        ;; bind CMD+X to pasteboard-cut
+        (global-set-key (kbd "s-x") 'pasteboard-cut))
+    )
+#+end_src
 
 ** TBD
 
@@ -623,8 +658,10 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (global-set-key (kbd "C-M-o") 'ace-window)     ; Ace-window
   (setq aw-keys '(?a ?s ?d ?f ?q ?w ?e ?r))
   ;; avy
-  (global-set-key (kbd "C-M-]") 'avy-goto-char)
-  (global-set-key (kbd "C-M-[") 'avy-goto-char-2)
+  (use-package avy
+    :bind
+    (:map evil-normal-state-map
+          ("s" . avy-goto-char-2)))
 
   ;; color-rg
   (use-package color-rg
@@ -715,17 +752,25 @@ Because some packages need fully reload, It may need several restarting Emacs.
     ;; (setq search-default-mode #'char-fold-to-regexp)
     (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
     :bind
-    ("C-s" . swiper)
-    ("C-c C-r" . ivy-resume)
-    (:map evil-normal-state-map
-          ("fl" . counsel-locate)
-          ("ff" . counsel-describe-function)
-          ("fv" . counsel-describe-variable)
-          ("fl" . counsel-find-library)
-          ("fi" . counsel-info-lookup-symbol)
-          ("fu" . 'counsel-unicode-char))
-    (:map minibuffer-local-map
-          ("C-r" . counsel-minibuffer-history)))
+    (("C-s" . swiper)
+     ("C-c C-r" . ivy-resume)
+     ("M-y" . counsel-yank-pop)
+     ("M-x" . counsel-M-x)
+     ("C-c g" . counsel-git)
+     ("C-c j" . counsel-git-grep)
+     ("C-c k" . counsel-ag)
+     ("C-x C-f" . counsel-find-file)
+
+     :map evil-normal-state-map
+     ("fl" . counsel-locate)
+     ("ff" . counsel-describe-function)
+     ("fv" . counsel-describe-variable)
+     ("fl" . counsel-find-library)
+     ("fi" . counsel-info-lookup-symbol)
+     ("fu" . 'counsel-unicode-char)
+
+     :map minibuffer-local-map
+     ("C-r" . counsel-minibuffer-history)))
 
   ;; magit
   (use-package magit
@@ -769,11 +814,11 @@ Because some packages need fully reload, It may need several restarting Emacs.
 #+end_src
 
 ** Customize
-   #+begin_src emacs-lisp
-     (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-     (when (file-exists-p custom-file)
-       (load custom-file))
-   #+end_src
+#+begin_src emacs-lisp
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (when (file-exists-p custom-file)
+    (load custom-file))
+#+end_src
 * Credits
 This Emacs configuration was influenced and inspired by the following configurations.
 - [[https://github.com/MatthewZMD/.emacs.d][MT’s GNU Emacs Configuration]]
