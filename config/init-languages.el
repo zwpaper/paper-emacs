@@ -127,13 +127,6 @@
   :init
   :config)
 
-(use-package haskell-mode
-  :mode ("\\.hs\\'" . haskell-mode)
-  :init
-  (add-hook 'haskell-mode-hook
-            (lambda ()
-              (setq compile-command "stack build --fast --test --bench --no-run-tests --no-run-benchmarks"))))
-
 (use-package lua-mode
   :mode
   ("\\.lua$" . lua-mode))

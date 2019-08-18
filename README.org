@@ -504,6 +504,10 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :ensure nil)
   (use-package init-beancount
     :ensure nil)
+  (use-package init-haskell
+    :ensure nil)
+  (use-package init-typescript
+    :ensure nil)
 
   (use-package multiple-cursors)
 
