@@ -1,10 +1,11 @@
 # -*- mode: snippet -*-
 # name: hugo new org
-# key: hugo.org
+# key: hugo.new
 # --
 #+HUGO_BASE_DIR: ../
 #+TITLE:
 #+DATE:
+#+author: zwPapEr
 #+HUGO_AUTO_SET_LASTMOD: t
 #+HUGO_TAGS:
 #+HUGO_CATEGORIES:
