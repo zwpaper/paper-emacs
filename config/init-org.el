@@ -116,9 +116,11 @@
 
 ;;; GTD
 (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-                          (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)")))
+                          (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)")
+                          (sequence "PROJECT" "|")))
 (setq org-todo-keyword-faces
       '(("NEXT" . (:foreground "red" :weight bold))
+        ("PROJECT" . (:foreground "green" :weight bold))
         ("WAITING" . "magenta")))
 (setq org-tag-alist (quote (("#errand" . ?e)
                             ("#office" . ?o)
