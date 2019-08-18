@@ -528,7 +528,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
     (define-key awesome-pair-mode-map (kbd "SPC") 'awesome-pair-space)
 
-    (define-key awesome-pair-mode-map (kbd "M-o") 'awesome-pair-backward-delete)
     (define-key awesome-pair-mode-map (kbd "C-d") 'awesome-pair-forward-delete)
     (define-key awesome-pair-mode-map (kbd "C-k") 'awesome-pair-kill)
 
@@ -697,12 +696,15 @@ Because some packages need fully reload, It may need several restarting Emacs.
   ;; Pyim
   (use-package pyim
     :demand t
+    :init
+    ;; librime copy to .emacs.d/plugin
+    (require 'liberime)
     :config
-    ;; 五笔用户使用 wbdict 词库
-    ;; manuam package downloaded qingge dict
-
     (setq default-input-method "pyim")
-    (setq pyim-default-scheme 'qingge)
+    (liberime-start "/Library/Input Methods/Squirrel.app/Contents/SharedSupport" (file-truename "~/.emacs.d/pyim/rime/"))
+    (liberime-select-schema "luna_pinyin_simp")
+    (setq pyim-default-scheme 'rime-quanpin)
+    (setq pyim-page-length 9)
 
     ;; 设置 pyim 探针设置，这是 pyim 高级功能设置，可以实现 *无痛* 中英文切换 :-)
     ;; 我自己使用的中英文动态切换规则是：
@@ -722,17 +724,13 @@ Because some packages need fully reload, It may need several restarting Emacs.
     ;; 使用 pupup-el 来绘制选词框
     (if window-system
         (progn
-        (use-package posframe)
-        (setq pyim-page-tooltip 'posframe)
-        )
+          (use-package posframe)
+          (setq pyim-page-tooltip 'posframe))
       (setq pyim-page-tooltip 'popup))
 
-    ;; 选词框显示5个候选词
-    (setq pyim-page-length 5)
-
     ;; 让 Emacs 启动时自动加载 pyim 词库
-    (add-hook 'emacs-startup-hook
-              #'(lambda () (pyim-restart-1 t)))
+    ;;  (add-hook 'emacs-startup-hook
+    ;;            #'(lambda () (pyim-restart-1 t)))
     :bind
     (("M-j" . pyim-convert-code-at-point) ;与 pyim-probe-dynamic-english 配合
      ("C-;" . pyim-delete-word-from-personal-buffer)))
