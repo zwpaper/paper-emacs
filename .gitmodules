@@ -7,3 +7,6 @@
 [submodule "snails"]
 	path = plugin/snails
 	url = git@github.com:manateelazycat/snails.git
+[submodule "awesome-tab"]
+	path = plugin/awesome-tab
+	url = git@github.com:manateelazycat/awesome-tab.git
