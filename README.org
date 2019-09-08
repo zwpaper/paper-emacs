@@ -17,7 +17,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
   There are some system package dependency, should be installed, check [[https://github.com/zwpaper/dotfile][dot file]]
 
-**  Use package
+** Use package
 
 #+begin_src emacs-lisp
   (unless (package-installed-p 'use-package)
@@ -316,22 +316,10 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
 -----
 
-** Evil
-
+** Hydra
 #+begin_src emacs-lisp
-  (use-package evil
-    :demand
-    :config
-    (evil-mode 1)
-    (setq evil-default-state 'emacs)
-    :bind
-    (("<escape>" . evil-normal-state)
-     ("C-o" . evil-execute-in-normal-state)
-     :map evil-normal-state-map
-     ("s" . avy-goto-char-2)
-     ("i" . evil-emacs-state)))
+  (use-package hydra)
 #+end_src
-
 ** Snails
 #+begin_src emacs-lisp
   (use-package snails
@@ -369,15 +357,35 @@ Because some packages need fully reload, It may need several restarting Emacs.
 *** Tab
 #+begin_src emacs-lisp
   (use-package awesome-tab
+    :ensure nil
     :load-path "plugin/awesome-tab"
+    :init
+    (defhydra hydra-tab ()
+      "
+   Tab^^                    Group^^                   Other^^
+   ───────^^────────────  ─────^^───────────────  ─────^^──────────────
+   [_h_/_l_] pre/next       [_p_/_n_] pre/next group  [_H_/_L_] other pre/next
+   [_b_/_e_] beginning/end  [_s_] switch            [_d_/_K_] delete/Kill all    [_q_] quit"
+      ;; Tab
+      ("h" awesome-tab-backward)
+      ("l" awesome-tab-forward)
+      ("b" awesome-tab-select-beg-tab)
+      ("e" awesome-tab-select-end-tab)
+      ;; Group
+      ("p" awesome-tab-backward-group)
+      ("n" awesome-tab-forward-group)
+      ("s" awesome-tab-switch-group)
+      ;; Other
+      ("d" kill-this-buffer)
+      ("K" awesome-tab-kill-all-buffers-in-current-group)
+      ("H" awesome-tab-forward-tab-other-window)
+      ("L" awesome-tab-backward-tab-other-window)
+      ("q" nil :exit t))
     :config
     (awesome-tab-mode t)
     (setq awesome-tab-style "box")
     :bind
-    (:map evil-normal-state-map
-     ("tf" . awesome-tab-forward-tab)
-     ("ts" . awesome-tab-switch-group)
-     ("tb" . awesome-tab-backward-tab)))
+    (("M-t" . hydra-tab/body)))
 #+end_src
 
 *** Nerd Icons
@@ -584,10 +592,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
           ("C-x t C-t" . treemacs-find-file)
           ("C-x t M-t" . treemacs-find-tag)))
 
-  (use-package treemacs-evil
-    :after treemacs evil
-    :ensure t)
-
   (use-package treemacs-projectile
     :after treemacs projectile
     :ensure t)
@@ -665,8 +669,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
   ;; avy
   (use-package avy
     :bind
-    (:map evil-normal-state-map
-          ("s" . avy-goto-char-2)))
+    (("C-M-[" . avy-goto-char-2)))
 
   ;; color-rg
   (use-package color-rg
@@ -679,7 +682,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :ensure nil
     :init
     (use-package eshell-up)
-    (use-package eshell-z)
     (use-package eshell-did-you-mean)
     (use-package eshell-prompt-extras)
     :config
@@ -740,6 +742,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (use-package ivy
     :diminish ivy-mode
     :config
+    (use-package ivy-rich)
     (use-package swiper)
     (use-package counsel
       :bind
@@ -764,14 +767,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
      ("C-c j" . counsel-git-grep)
      ("C-c k" . counsel-ag)
      ("C-x C-f" . counsel-find-file)
-
-     :map evil-normal-state-map
-     ("fl" . counsel-locate)
-     ("ff" . counsel-describe-function)
-     ("fv" . counsel-describe-variable)
-     ("fl" . counsel-find-library)
-     ("fi" . counsel-info-lookup-symbol)
-     ("fu" . 'counsel-unicode-char)
 
      :map minibuffer-local-map
      ("C-r" . counsel-minibuffer-history)))
