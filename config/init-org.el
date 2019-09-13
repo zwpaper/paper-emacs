@@ -18,7 +18,11 @@
          ("C-M-<return>" . org-insert-todo-subheading))
   :config
   (setq org-log-done t)
-  (setq org-agenda-files (list (concat org-path "/tasks"))))
+  (setq org-agenda-files (list (concat org-path "/tasks")))
+  (setq org-image-actual-width '(600))
+  :hook
+  (org-mode . (lambda () (org-display-inline-images t)))
+  (org-mode . (lambda () (add-hook 'before-save-hook 'org-redisplay-inline-images nil 'local))))
 
 ;; Custom commands
 (setq org-agenda-custom-commands
@@ -28,6 +32,7 @@
          ((org-agenda-overriding-header "home")))
         ("p" "Priority" tags-todo "+PRIORITY=\"A\"")
         ("w" "Waitting" todo "WAITING")
+        ("n" "Next" todo "NEXT")
         ("r" . "Review")
         ("ry" "Closed Yesterday"
          tags (concat "+TODO=\"DONE\""
@@ -79,7 +84,7 @@
                "* TODO %^{Task Name}\n%u\n%a\n" :clock-in t :clock-resume t))
 (add-to-list 'org-capture-templates
              '("n" "Notes" entry
-               (file+headline (concat org-path "/tasks/inbox.org"), "Notes")
+               (file+headline (concat org-path "/tasks/inbox.org") "Notes")
                "* %^{heading} %t %^g\n  %?\n"))
 
 ;;;; org protocol capture from outside Emacs
@@ -117,10 +122,13 @@
 ;;; GTD
 (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
                           (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)")
-                          (sequence "PROJECT" "|")))
+                          (sequence "PROJECT" "TARGET" "MAYBE" "|")))
 (setq org-todo-keyword-faces
       '(("NEXT" . (:foreground "red" :weight bold))
         ("PROJECT" . (:foreground "green" :weight bold))
+        ("TARGET" . (:foreground "purple" :weight bold))
+        ("MAYBE" . (:foreground "gray"))
+        ("HOLD" . (:foreground "gray"))
         ("WAITING" . "magenta")))
 (setq org-tag-alist (quote (("#errand" . ?e)
                             ("#office" . ?o)
@@ -142,8 +150,12 @@
 (use-package org-download
   :after org
   :config
+  (setq-default org-download-image-dir "./images")
+  (setq-default org-download-heading-lvl nil)
   (setq org-startup-with-inline-images t)
-  (setq org-download-screenshot-method "screencapture -i %s"))
+  (setq org-download-screenshot-method "screencapture -i %s")
+  :hook
+  (org-mode . org-download))
 
 ;;; hugo blog
 (use-package ox-hugo
