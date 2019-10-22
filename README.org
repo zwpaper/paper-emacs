@@ -281,10 +281,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
   ;; Merge system clipboard with Emacs
   (setq-default select-enable-clipboard t)
 
-  ;; Set eww as the default browser in Emacs
-  ;; In eww, hit & to browse this url system browser
-  (setq browse-url-browser-function 'eww-browse-url)
-
   ;; Prevent Extraneous Tabs
   (setq-default indent-tabs-mode nil)
 
@@ -309,9 +305,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
     (add-to-list 'default-frame-alist '(ns-appearance . dark)) ;; assuming you are using a dark theme
     (setq ns-use-proxy-icon nil)
-    (setq frame-title-format nil)
-    (setq default-frame-alist
-          '((top + 0) (left + 1920) (width . 108) (height . 60))))
+    (setq frame-title-format nil))
 #+end_src
 
 -----
