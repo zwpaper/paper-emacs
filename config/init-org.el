@@ -56,18 +56,19 @@
     :config
     (setq org-src-fontify-natively t)))
 ;;;; Capture
-(global-set-key (kbd "C-c c") 'org-capture)
 (setq org-default-notes-file (concat org-path "/inbox.org"))
-(setq org-refile-targets '(((concat org-path "/tasks/personal.org") :maxlevel . 3)
-                           ((concat org-path "/tasks/work.org") :maxlevel . 3)
-                           ((concat org-path "/tasks/next.org") :maxlevel . 3)
-                           ((concat org-path "/tasks/family.org") :maxlevel . 3)
-                           ((concat org-path "/tasks/maybe.org") :level . 1)))
+(setq org-refile-targets `((,(concat org-path "/tasks/personal.org") :maxlevel . 3)
+                           (,(concat org-path "/tasks/work.org") :maxlevel . 9)
+                           (,(concat org-path "/tasks/next.org") :maxlevel . 3)
+                           (,(concat org-path "/tasks/family.org") :maxlevel . 3)
+                           (,(concat org-path "/tasks/maybe.org") :level . 1)))
 
 (use-package org-protocol
   :ensure nil)
 (use-package org-capture
-  :ensure nil)
+  :ensure nil
+  :config
+  (global-set-key (kbd "C-c c") 'org-capture))
 
 ;;;; Tamplates
 (add-to-list 'org-capture-templates
@@ -147,15 +148,15 @@
 
 (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
 
-(use-package org-download
-  :after org
-  :config
-  (setq-default org-download-image-dir "./images")
-  (setq-default org-download-heading-lvl nil)
-  (setq org-startup-with-inline-images t)
-  (setq org-download-screenshot-method "screencapture -i %s")
-  :hook
-  (org-mode . org-download))
+;; (use-package org-download
+;;   :after org
+;;   :config
+;;   (setq-default org-download-image-dir "./images")
+;;   (setq-default org-download-heading-lvl nil)
+;;   (setq org-startup-with-inline-images t)
+;;   (setq org-download-screenshot-method "screencapture -i %s")
+;;   :hook
+;;   (org-mode . org-download))
 
 ;;; hugo blog
 (use-package ox-hugo
