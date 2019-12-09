@@ -1,5 +1,5 @@
 ;;; package --- Summary
-;; C++, C, Go, Python, Rust, Haskell
+;; C++, C, Rust
 ;;; Commentary:
 
 ;;; Code:
@@ -116,16 +116,11 @@
 ;; (use-package sh-mode)
 
 
-
 (use-package rust-mode
   :init
   :config
   (with-eval-after-load 'lsp-mode
     (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))))
-
-(use-package python-mode
-  :init
-  :config)
 
 (use-package lua-mode
   :mode
@@ -151,6 +146,15 @@
   :config)
 (use-package markdown-toc
   :defer t)
+
+(use-package init-python
+  :ensure nil)
+(use-package init-go
+  :ensure nil)
+(use-package init-haskell
+  :ensure nil)
+(use-package init-typescript
+  :ensure nil)
 
 (provide 'init-languages)
 ;;; init-languages.el ends here
