@@ -99,7 +99,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
 *** General
 
 #+begin_src emacs-lisp
-  (when (memq window-system '(mac ns x))
+  (when (eq system-type 'darwin)
     (use-package exec-path-from-shell
       :config
       (exec-path-from-shell-initialize)
@@ -415,10 +415,11 @@ Because some packages need fully reload, It may need several restarting Emacs.
 #+end_quote
 
 #+begin_src emacs-lisp
-  (use-package all-the-icons)
-  ;; should run M-x: all-the-icons-install-fonts
-  (add-to-list 'load-path "~/.emacs.d/plugin/nerd-icons")
+  (use-package all-the-icons
+    :init
+    (all-the-icons-install-fonts))
   (use-package nerd-icons
+    :load-path "~/.emacs.d/plugin/nerd-icons"
     :ensure nil)
   (set-face-attribute 'default nil
                       :family "Hack Nerd Font"
@@ -436,7 +437,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
          ;; macOS code goes here.
          ))
 
-  (if (display-graphic-p)
+  (if (eq system-type 'darwin)
       (progn
         ;; Set default font
         ;;; 如果配置好，这24个汉字与下面个48英文字母应该等长
@@ -528,13 +529,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :ensure nil)
   (use-package init-tabnine
     :ensure nil)
-  (use-package init-go
-    :ensure nil)
   (use-package init-beancount
-    :ensure nil)
-  (use-package init-haskell
-    :ensure nil)
-  (use-package init-typescript
     :ensure nil)
 
   (use-package multiple-cursors)

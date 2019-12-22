@@ -74,6 +74,7 @@
               ([remap xref-find-references] . lsp-ui-peek-find-references)
               ("C-c u" . lsp-ui-imenu)))
 
+(use-package company-posframe)
 (use-package company-lsp
   :after company lsp-mode
   :init
