@@ -15,9 +15,8 @@
   ;; Format with `goimports' if possible, otherwise using `gofmt'
   (when (executable-find "goimports")
     (setq gofmt-command "goimports"))
-  (add-hook 'before-save-hook #'gofmt-before-save)
-  ;; (add-hook 'before-save-hook #'lsp-format-buffer)
-  ;; (add-hook 'before-save-hook #'lsp-organize-imports)
+  (add-hook 'before-save-hook #'lsp-format-buffer)
+  (add-hook 'before-save-hook #'lsp-organize-imports)
 
   ;; Install or update tools
   (defvar go--tools '("golang.org/x/tools/cmd/goimports"
@@ -68,7 +67,7 @@
   (unless (executable-find "gopls")
     (go-update-tools))
 
-  (setq compile-command "echo Building... && go build -v && echo Testing... && go test -v && echo Linter... && golint")
+  (setq compile-command "echo Building... && go build -v && echo Testing... && go test -v && echo Linter... && golangci-lint run")
   (setq compilation-read-command nil)
 
   :bind

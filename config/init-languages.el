@@ -19,6 +19,9 @@
 (use-package flycheck
   :diminish flycheck-mode
   :hook (after-init . global-flycheck-mode)
+  :init
+  (use-package flycheck-golangci-lint
+    :hook (go-mode . flycheck-golangci-lint-setup))
   :config
   (setq flycheck-indication-mode 'right-fringe)
   (setq flycheck-emacs-lisp-load-path 'inherit)
@@ -148,6 +151,7 @@
 (use-package markdown-toc
   :defer t)
 
+(use-package groovy-mode)
 (use-package init-python
   :ensure nil)
 (use-package init-go
@@ -155,6 +159,8 @@
 (use-package init-haskell
   :ensure nil)
 (use-package init-typescript
+  :ensure nil)
+(use-package init-flutter
   :ensure nil)
 
 (provide 'init-languages)

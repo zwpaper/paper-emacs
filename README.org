@@ -26,6 +26,9 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (eval-when-compile
     (require 'use-package))
   (setq use-package-always-ensure t)
+
+  (use-package use-package-ensure-system-package)
+  (use-package quelpa-use-package)
 #+end_src
 
 
@@ -69,7 +72,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
 #+begin_src emacs-lisp
   (setq manual-pakages
         '(
-          "https://raw.githubusercontent.com/yefeiyu/pyim-wbdict/master/pyim-wbdict-qingge.pyim"
           "https://raw.githubusercontent.com/manateelazycat/aweshell/master/aweshell.el"
           "https://raw.githubusercontent.com/manateelazycat/awesome-pair/master/awesome-pair.el"
           "https://raw.githubusercontent.com/manateelazycat/color-rg/master/color-rg.el"
@@ -250,7 +252,8 @@ Because some packages need fully reload, It may need several restarting Emacs.
 **** Terminal
 
 #+begin_src emacs-lisp
-  (use-package vterm)
+  (use-package init-vterm
+    :ensure nil)
 #+end_src
 
 ** OS Related
@@ -525,6 +528,8 @@ Because some packages need fully reload, It may need several restarting Emacs.
     ;;; local package
   (use-package init-org
     :ensure nil)
+  (use-package init-pyim
+    :ensure nil)
   (use-package init-languages
     :ensure nil)
   (use-package init-tabnine
@@ -560,8 +565,8 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (define-key awesome-pair-mode-map (kbd "M-(") 'awesome-pair-wrap-round)
     (define-key awesome-pair-mode-map (kbd "M-)") 'awesome-pair-unwrap)
 
-    (define-key awesome-pair-mode-map (kbd "M-p") 'awesome-pair-jump-right)
-    (define-key awesome-pair-mode-map (kbd "M-n") 'awesome-pair-jump-left)
+    (define-key awesome-pair-mode-map (kbd "M-p r") 'awesome-pair-jump-right)
+    (define-key awesome-pair-mode-map (kbd "M-p l") 'awesome-pair-jump-left)
 
     (dolist (hook (list
                    'c-mode-common-hook
@@ -632,12 +637,10 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (setq epa-pinentry-mode 'loopback))
 
   ;; Global Settings:
-    ;;; Key bindings
+  ;;; Key bindings
   (global-set-key (kbd "M-m") 'goto-line)
   ;; scroll one line only when past the bottom of screen
   (setq scroll-conservatively 1)
-  (global-set-key (kbd "M-n") 'scroll-up-line)
-  (global-set-key (kbd "M-p") 'scroll-down-line)
 
   (global-set-key (kbd "C-x C-b") 'ibuffer)
   (setq ibuffer-saved-filter-groups
@@ -709,51 +712,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (setq inhibit-compacting-font-caches t)
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 
-
-  ;; Pyim
-  (use-package pyim
-    :demand t
-    :init
-    ;; librime copy to .emacs.d/plugin
-    (require 'liberime)
-    :config
-    (setq default-input-method "pyim")
-    (liberime-start "/Library/Input Methods/Squirrel.app/Contents/SharedSupport" (file-truename "~/.emacs.d/pyim/rime/"))
-    (liberime-select-schema "luna_pinyin_simp")
-    (setq pyim-default-scheme 'rime-quanpin)
-    (setq pyim-page-length 9)
-
-    ;; 设置 pyim 探针设置，这是 pyim 高级功能设置，可以实现 *无痛* 中英文切换 :-)
-    ;; 我自己使用的中英文动态切换规则是：
-    ;; 1. 光标只有在注释里面时，才可以输入中文。
-    ;; 2. 光标前是汉字字符时，才能输入中文。
-    ;; 3. 使用 M-j 快捷键，强制将光标前的拼音字符串转换为中文。
-    (setq-default pyim-english-input-switch-functions
-                  '(pyim-probe-dynamic-english
-                    pyim-probe-isearch-mode
-                    pyim-probe-program-mode
-                    pyim-probe-org-structure-template))
-
-    (setq-default pyim-punctuation-half-width-functions
-                  '(pyim-probe-punctuation-line-beginning
-                    pyim-probe-punctuation-after-punctuation))
-
-    ;; 使用 pupup-el 来绘制选词框
-    (if window-system
-        (progn
-          (use-package posframe)
-          (setq pyim-page-tooltip 'posframe))
-      (setq pyim-page-tooltip 'popup))
-
-    ;; 让 Emacs 启动时自动加载 pyim 词库
-    ;;  (add-hook 'emacs-startup-hook
-    ;;            #'(lambda () (pyim-restart-1 t)))
-    :bind
-    (("M-j" . pyim-convert-code-at-point) ;与 pyim-probe-dynamic-english 配合
-     ("C-;" . pyim-delete-word-from-personal-buffer)))
-  (global-set-key (kbd "C-\\") 'toggle-input-method)
-
-
   (use-package ivy
     :diminish ivy-mode
     :config
@@ -788,11 +746,11 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
   ;; magit
   (use-package magit
-    :config
-    (use-package magit-todos
-      :config
-      (magit-todos-mode 1)
-      (setq magit-todos-exclude-globs "vendor"))
+    ;; :config
+    ;; (use-package magit-todos
+    ;;   :config
+    ;;   (magit-todos-mode 1)
+    ;;   (setq magit-todos-exclude-globs "vendor"))
     :bind
     ("C-x g" . magit-status))
 
