@@ -58,7 +58,7 @@
   (add-hook 'emacs-startup-hook
             #'(lambda () (pyim-restart-1 t)))
   :bind
-  (("M-j" . pyim-convert-code-at-point) ;与 pyim-probe-dynamic-english 配合
+  (("M-j" . pyim-convert-string-at-point) ;与 pyim-probe-dynamic-english 配合
    ("C-;" . pyim-delete-word-from-personal-buffer)))
 
 (provide 'init-pyim)
