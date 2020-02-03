@@ -634,8 +634,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (setq epa-pinentry-mode 'loopback))
 
   ;; Global Settings:
-  ;;; Key bindings
-  (global-set-key (kbd "M-m") 'goto-line)
+    ;;; Key bindings
   ;; scroll one line only when past the bottom of screen
   (setq scroll-conservatively 1)
 

@@ -6,9 +6,9 @@
 
 (use-package vterm
   :bind
-  ("M-n n" . vterm)
-  ("M-n o" . vterm-other-window)
-  ("M-n r" . rename-buffer))
+  ("M-m n" . vterm)
+  ("M-m o" . vterm-other-window)
+  ("M-m r" . rename-buffer))
 
 ;; aweshell
 (use-package aweshell
@@ -18,7 +18,8 @@
            :repo "manateelazycat/aweshell"
            :files ("aweshell.el"))
   :bind
-  ("M-n e" . aweshell-new)
+  ("M-m e" . aweshell-new)
+  ("M-m m" . aweshell-dedicated-toggle)
   :init
   (use-package eshell-up)
   (use-package eshell-did-you-mean)
