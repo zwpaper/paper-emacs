@@ -5,6 +5,9 @@
 ;;; Code:
 
 (use-package dart-mode
+  :hook
+  (dart-mode . lsp)
+
   ;; :ensure-system-package (dart_language_server . "pub global activate dart_language_server")
   :custom
   (dart-format-on-save t)

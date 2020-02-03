@@ -53,10 +53,11 @@
   (setq lsp-auto-guess-root nil)
   :config
   (setq lsp-prefer-flymake nil)
-  :hook
-  (prog-mode . lsp)
   :bind (:map lsp-mode-map
               ("C-c C-d" . lsp-describe-thing-at-point)))
+
+(use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+; (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 
 (use-package lsp-ui
   :init (setq lsp-ui-doc-enable t

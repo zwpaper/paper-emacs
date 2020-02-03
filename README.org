@@ -72,9 +72,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
 #+begin_src emacs-lisp
   (setq manual-pakages
         '(
-          "https://raw.githubusercontent.com/manateelazycat/aweshell/master/aweshell.el"
           "https://raw.githubusercontent.com/manateelazycat/awesome-pair/master/awesome-pair.el"
-          "https://raw.githubusercontent.com/manateelazycat/color-rg/master/color-rg.el"
           "https://raw.githubusercontent.com/manateelazycat/thing-edit/master/thing-edit.el"
           "https://raw.githubusercontent.com/joaotavora/autopair/master/autopair.el"
           "https://raw.githubusercontent.com/zk-phi/indent-guide/master/indent-guide.el"
@@ -252,7 +250,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
 **** Terminal
 
 #+begin_src emacs-lisp
-  (use-package init-vterm
+  (use-package init-term
     :ensure nil)
 #+end_src
 
@@ -418,9 +416,8 @@ Because some packages need fully reload, It may need several restarting Emacs.
 #+end_quote
 
 #+begin_src emacs-lisp
-  (use-package all-the-icons
-    :init
-    (all-the-icons-install-fonts))
+  (use-package all-the-icons)
+    ;; (all-the-icons-install-fonts))
   (use-package nerd-icons
     :load-path "~/.emacs.d/plugin/nerd-icons"
     :ensure nil)
@@ -692,20 +689,14 @@ Because some packages need fully reload, It may need several restarting Emacs.
   ;; color-rg
   (use-package color-rg
     :ensure nil
+    :ensure-system-package
+    (rg . ripgrep)
+    :quelpa (color-rg
+             :fetcher github
+             :repo "manateelazycat/color-rg"
+             :files ("color-rg.el"))
     :bind
-    (("M-s M-s" . color-rg-search-project))
-    )
-  ;; aweshell
-  (use-package aweshell
-    :ensure nil
-    :init
-    (use-package eshell-up)
-    (use-package eshell-did-you-mean)
-    (use-package eshell-prompt-extras)
-    :config
-    (defalias 'open 'find-file)
-    (defalias 'ls '(lsd $*))
-    )
+    (("M-s M-s" . color-rg-search-project)))
 
     ;;; Global
 
@@ -756,13 +747,12 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
 
   ;; Indent Guide
-                                          ;  (use-package highlight-indent-guides
-                                          ;    :hook
-                                          ;    (haskell-mode c-mode emacs-lisp-mode lisp-interaction-mode lisp-mode
-                                          ;    sh-mode c++-mode makefile-gmake-mode python-mode js-mode
-                                          ;    go-mode rust-mode lua-mode minibuffer-inactive-mode))
-
-
+  (use-package indent-guide
+    :config
+    (set-face-foreground 'indent-guide-face "dimgray")
+    (setq indent-guide-delay 0.2)
+    :hook
+    (prog-mode . indent-guide-mode))
 
   (load "server")
   (unless (server-running-p) (server-start))

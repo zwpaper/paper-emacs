@@ -8,6 +8,8 @@
   (require 'init-const))
 
 (use-package go-mode
+  :hook
+  (go-mode . lsp)
   :config
   (with-eval-after-load 'exec-path-from-shell
     (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY")))

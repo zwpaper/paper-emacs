@@ -24,7 +24,9 @@
 
 (use-package graphql-mode)
 
-(use-package json-mode)
+(use-package json-mode
+  :custom
+  (js-indent-level 2))
 
 (provide 'init-markup)
 

@@ -18,7 +18,8 @@
          ("C-M-<return>" . org-insert-todo-subheading))
   :config
   (setq org-log-done t)
-  (setq org-agenda-files (list (concat org-path "/tasks")))
+  (setq org-agenda-files (list (concat org-path "/tasks")
+                               (concat org-path "/tasks/work")))
   (setq org-image-actual-width '(600))
   :hook
   (org-mode . (lambda () (org-display-inline-images t)))
