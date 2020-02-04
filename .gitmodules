@@ -4,9 +4,6 @@
 [submodule "fuz.el"]
 	path = plugin/fuz
 	url = git@github.com:cireu/fuz.el.git
-[submodule "snails"]
-	path = plugin/snails
-	url = git@github.com:manateelazycat/snails.git
 [submodule "awesome-tab"]
 	path = plugin/awesome-tab
 	url = git@github.com:manateelazycat/awesome-tab.git
