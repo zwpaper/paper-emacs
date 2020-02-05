@@ -4,6 +4,7 @@
 
 ;;; Code:
 
+(global-unset-key (kbd "M-m"))
 (use-package vterm
   :bind
   ("M-m n" . vterm)
