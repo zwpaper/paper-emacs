@@ -21,14 +21,28 @@
   (setq org-agenda-files (list (concat org-path "/tasks")
                                (concat org-path "/tasks/work")))
   (setq org-image-actual-width '(600))
+
+  ;;; set org agenda prefix to project name
+  (defun org-agenda-prefix-project ()
+    (let ((x (nth 0 (org-get-outline-path))))
+      (if x
+          (concat "[ " (org-format-outline-path (list x)) " ]")
+        "")))
+  (setq org-agenda-prefix-format " %i %?-12(org-agenda-prefix-project) ")
+
   :hook
   (org-mode . (lambda () (org-display-inline-images t)))
   (org-mode . (lambda () (add-hook 'before-save-hook 'org-redisplay-inline-images nil 'local))))
 
 ;; Custom commands
+;;; https://orgmode.org/worg/org-tutorials/org-custom-agenda-commands.html
 (setq org-agenda-custom-commands
       '(("o" "At the office" tags-todo "#office"
-         ((org-agenda-overriding-header "#office")))
+         ((org-agenda-overriding-header "#office"))
+         (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first))
+        ("j" "Job, work tasks" tags-todo "+CATEGORY=\"Work\"+todo=\"TODO\""
+         ((org-agenda-overriding-header "Work"))
+         (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first))
         ("h" "At the home" tags-todo "#home"
          ((org-agenda-overriding-header "home")))
         ("p" "Priority" tags-todo "+PRIORITY=\"A\"")
@@ -48,6 +62,22 @@
                       (org-agenda-show-log t)
                       (org-agenda-prefix-format "%-12t% s"))))
          )))
+
+(defun my-org-agenda-skip-all-siblings-but-first ()
+  "Skip all but the first non-done entry."
+  (let (should-skip-entry)
+    (unless (org-current-is-todo)
+      (setq should-skip-entry t))
+    (save-excursion
+      (while (and (not should-skip-entry) (org-goto-sibling t))
+        (when (org-current-is-todo)
+          (setq should-skip-entry t))))
+    (when should-skip-entry
+      (or (outline-next-heading)
+          (goto-char (point-max))))))
+
+(defun org-current-is-todo ()
+  (string= "TODO" (org-get-todo-state)))
 
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
