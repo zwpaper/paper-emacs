@@ -15,20 +15,46 @@
          ("C-M-b" . org-do-promote)
          ("C-M-p" . org-move-subtree-up)
          ("C-M-n" . org-move-subtree-down)
-         ("C-M-<return>" . org-insert-todo-subheading))
+         ("C-M-<return>" . org-insert-todo-subheading)
+         ("C-c i" . org-insert-image))
   :config
   (setq org-log-done t)
-  (setq org-agenda-files (list (concat org-path "/tasks")
-                               (concat org-path "/tasks/work")))
+  (setq org-agenda-files (list (concat org-path "/tasks")))
   (setq org-image-actual-width '(600))
 
   ;;; set org agenda prefix to project name
   (defun org-agenda-prefix-project ()
     (let ((x (nth 0 (org-get-outline-path))))
       (if x
-          (concat "[ " (org-format-outline-path (list x)) " ]")
+          (concat "[" (org-format-outline-path (list x)) "]")
         "")))
-  (setq org-agenda-prefix-format " %i %?-12(org-agenda-prefix-project) ")
+  ;;; %b can do breadcrumb, but make it look mess
+  (setq org-agenda-prefix-format " %i %?-14(org-agenda-prefix-project) ")
+
+  (defun org-insert-image ()
+    "insert a image from clipboard"
+    (interactive)
+    (let* ((path (concat default-directory "images/"))
+           (image-file (concat
+                        path
+                        (buffer-name)
+                        (format-time-string "_%Y%m%d_%H%M%S.png"))))
+      (if (not (file-exists-p path))
+          (mkdir path))
+      ;; (do-applescript (concat
+      ;;                  "set the_path to \"" image-file "\" \n"
+      ;;                  "set png_data to the clipboard as «class PNGf» \n"
+      ;;                  "set the_file to open for access (POSIX file the_path as string) with write permission \n"
+      ;;                  "write png_data to the_file \n"
+      ;;                  "close access the_file"))
+
+      (shell-command (concat "pngpaste " image-file))
+      (org-insert-link nil
+                       (concat "file:" image-file)
+                       "")
+      (message image-file))
+    (org-display-inline-images))
+
 
   :hook
   (org-mode . (lambda () (org-display-inline-images t)))
@@ -88,12 +114,13 @@
     (setq org-src-fontify-natively t)))
 ;;;; Capture
 (setq org-default-notes-file (concat org-path "/inbox.org"))
-(setq org-refile-targets `((,(concat org-path "/tasks/personal.org") :maxlevel . 3)
-                           (,(concat org-path "/tasks/work.org") :maxlevel . 9)
-                           (,(concat org-path "/tasks/next.org") :maxlevel . 3)
-                           (,(concat org-path "/tasks/family.org") :maxlevel . 3)
-                           (,(concat org-path "/tasks/maybe.org") :level . 1)))
-
+(setq org-refile-targets '((org-agenda-files :maxlevel . 5)))
+;; (setq org-refile-targets `((,(concat org-path "/tasks/personal.org") :maxlevel . 3)
+;;                            (,(concat org-path "/tasks/work.org") :maxlevel . 9)
+;;                            (,(concat org-path "/tasks/next.org") :maxlevel . 3)
+;;                            (,(concat org-path "/tasks/family.org") :maxlevel . 3)
+;;                            (,(concat org-path "/tasks/maybe.org") :level . 1)))
+;;
 (use-package org-protocol
   :ensure nil)
 (use-package org-capture
@@ -207,6 +234,8 @@
   (("M-s M-o" . deft)))
 
 (use-package org-bullets
+  :config
+  (setq org-bullets-bullet-list '("Ⅰ" "Ⅱ" "Ⅲ" "Ⅳ" "Ⅴ" "Ⅵ" "Ⅶ" "Ⅷ" "Ⅸ" "Ⅹ"))
   :hook
   (org-mode . (lambda () (org-bullets-mode 1))))
 

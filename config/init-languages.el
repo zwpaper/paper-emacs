@@ -7,6 +7,9 @@
 (eval-when-compile
   (require 'init-const))
 
+(use-package init-lsp
+  :ensure nil)
+
 ;; YASnippet
 (use-package yasnippet
   :init

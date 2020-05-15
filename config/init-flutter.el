@@ -13,7 +13,9 @@
   (dart-format-on-save t)
   (dart-sdk-path (file-truename "~/repo/flutter/bin/cache/dart-sdk/"))
   (lsp-dart-sdk-path (file-truename "~/repo/flutter/bin/cache/dart-sdk/"))
-  (lsp-dart-sdk-dir (file-truename "~/repo/flutter/bin/cache/dart-sdk/")))
+  (lsp-dart-sdk-dir (file-truename "~/repo/flutter/bin/cache/dart-sdk/"))
+  :hook
+  (dart-mode . (lambda () (awesome-pair-mode 1))))
 
 (use-package flutter
   :after dart-mode

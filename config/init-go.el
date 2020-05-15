@@ -8,17 +8,18 @@
   (require 'init-const))
 
 (use-package go-mode
-  :hook
-  (go-mode . lsp)
+  :init
+  (add-to-list 'exec-path "~/code/go/bin")
   :config
   (with-eval-after-load 'exec-path-from-shell
     (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY")))
 
   ;; Format with `goimports' if possible, otherwise using `gofmt'
-  (when (executable-find "goimports")
-    (setq gofmt-command "goimports"))
-  (add-hook 'before-save-hook #'lsp-format-buffer)
-  (add-hook 'before-save-hook #'lsp-organize-imports)
+  ;; (when (executable-find "goimports")
+  ;;   (setq gofmt-command "goimports"))
+  (add-hook 'before-save-hook 'nox-format-buffer)
+  ;; (add-hook 'before-save-hook #'lsp-format-buffer)
+  ;; (add-hook 'before-save-hook #'lsp-organize-imports)
 
   ;; Install or update tools
   (defvar go--tools '("golang.org/x/tools/cmd/goimports"

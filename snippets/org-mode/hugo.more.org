@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: hugo.more
+# key: hugo.more
+# --
+
+<!--more-->
+
+$0

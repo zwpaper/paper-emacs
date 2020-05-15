@@ -29,6 +29,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
   (use-package use-package-ensure-system-package)
   (use-package quelpa-use-package)
+  (use-package use-package-hydra)
 #+end_src
 
 
@@ -78,11 +79,11 @@ Because some packages need fully reload, It may need several restarting Emacs.
           "https://raw.githubusercontent.com/zk-phi/indent-guide/master/indent-guide.el"
           "https://raw.githubusercontent.com/beancount/beancount/master/editors/emacs/beancount.el"))
 
-  (while manual-pakages
-    (url-copy-file (car manual-pakages)
-                   (concat "~/.emacs.d/plugin/" (car (last (split-string (car manual-pakages) "/"))))
-                   t)
-    (setq manual-pakages (cdr manual-pakages)))
+;  (while manual-pakages
+;    (url-copy-file (car manual-pakages)
+;                   (concat "~/.emacs.d/plugin/" (car (last (split-string (car manual-pakages) "/"))))
+;                   t)
+;    (setq manual-pakages (cdr manual-pakages)))
 
   ;;; Vars
   (setq-default indent-tabs-mode nil)
@@ -193,7 +194,9 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (use-package whitespace
     :ensure nil
     :diminish
-    :hook ((prog-mode outline-mode conf-mode) . whitespace-mode)
+    :hook
+    ((prog-mode outline-mode conf-mode) . whitespace-mode)
+    (markdown-mode . whitespace-mode)
     :config
     (setq whitespace-line-column fill-column) ;; limit line length
     ;; automatically clean up bad whitespace
@@ -297,10 +300,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
   ;; Truncate lines
   (global-set-key (kbd "C-x C-!") 'toggle-truncate-lines)
-
-  ;; Move the custom-set-variables to a different files
-  (setq custom-file "~/.emacs.d/custom-file.el")
-  (load custom-file 'noerror)
 #+end_src
 
 *** macOS
@@ -328,8 +327,11 @@ Because some packages need fully reload, It may need several restarting Emacs.
 ** Snails
 #+begin_src emacs-lisp
   (use-package snails
-    :ensure nil
-    :load-path "plugin/snails"
+    :ensure t
+    :quelpa (snails
+             :upgrade t
+             :fetcher github
+             :repo "manateelazycat/snails")
     :bind
     (:map global-map
           ("C-x C-a" . snails)))
@@ -365,6 +367,16 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
     ;; Corrects (and improves) org-mode's native fontification.
     (doom-themes-org-config))
+
+  (defcustom centaur-icon (display-graphic-p)
+    "Display icons or not."
+    :group 'centaur
+    :type 'boolean)
+  (defun icons-displayable-p ()
+    "Return non-nil if `all-the-icons' is displayable."
+    (and centaur-icon
+         (display-graphic-p)
+         (require 'all-the-icons nil t)))
 #+end_src
 
 *** Tab
@@ -416,7 +428,9 @@ Because some packages need fully reload, It may need several restarting Emacs.
 #+end_quote
 
 #+begin_src emacs-lisp
-  (use-package all-the-icons)
+  (use-package all-the-icons
+    :ensure nil
+    :load-path "~/code/elisp/all-the-icons.el")
     ;; (all-the-icons-install-fonts))
   (use-package nerd-icons
     :load-path "~/.emacs.d/plugin/nerd-icons"
@@ -426,6 +440,15 @@ Because some packages need fully reload, It may need several restarting Emacs.
                       :height 140
                       :weight 'normal
                       :width 'normal)
+  (use-package all-the-icons-ivy-rich
+    :ensure t
+    :init (all-the-icons-ivy-rich-mode 1))
+
+  (use-package ivy-rich
+    :ensure t
+    :init (ivy-rich-mode 1)
+    :config
+    (setq all-the-icons-ivy-rich-icon-size 0.8))
 
   (cond ((eq system-type 'windows-nt)
          ;; Windows-specific code goes here.
@@ -514,15 +537,23 @@ Because some packages need fully reload, It may need several restarting Emacs.
     )
 #+end_src
 
+
+
+** Customize
+#+begin_src emacs-lisp
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (when (file-exists-p custom-file)
+    (load custom-file))
+#+end_src
 ** TBD
 
 #+begin_src emacs-lisp
-          ;;; var
+            ;;; var
                                           ;(defvar program-mode (haskell-mode c-mode emacs-lisp-mode lisp-interaction-mode lisp-mode
                                           ;                sh-mode c++-mode makefile-gmake-mode python-mode js-mode
                                           ;                go-mode rust-mode lua-mode minibuffer-inactive-mode))
 
-    ;;; local package
+      ;;; local package
   (use-package init-org
     :ensure nil)
   (use-package init-pyim
@@ -533,10 +564,12 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :ensure nil)
   (use-package init-beancount
     :ensure nil)
+  (use-package init-window
+    :ensure nil)
 
   (use-package multiple-cursors)
 
-    ;;; Awesome pair
+      ;;; Awesome pair
   (use-package awesome-pair
     :ensure nil
     :config
@@ -583,7 +616,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
                    ))
       (add-hook hook '(lambda () (awesome-pair-mode 1)))))
 
-          ;;; Treemacs
+            ;;; Treemacs
   (use-package treemacs
     :defer t
     :init
@@ -618,7 +651,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :ensure t
     :config (treemacs-icons-dired-mode))
 
-    ;;; Bookmarks
+      ;;; Bookmarks
   (setq bookmark-save-flag 1) ; everytime bookmark is changed, automatically save it
   (use-package recentf
     :init
@@ -668,11 +701,11 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (global-set-key (kbd "C-c C-a") 'mc/mark-all-like-this)
 
   ;; Move backup file to dot folder
-    ;;; Don't clutter up directories with files~
+      ;;; Don't clutter up directories with files~
   (setq backup-directory-alist
         `((".*" . ,temporary-file-directory)))
 
-    ;;; Don't clutter with #files either
+      ;;; Don't clutter with #files either
   (setq auto-save-file-name-transforms
         `((".*" ,temporary-file-directory t)))
 
@@ -713,8 +746,9 @@ Because some packages need fully reload, It may need several restarting Emacs.
       ("M-x" . counsel-M-x)
       ("C-c g" . counsel-git)
       ("C-c j" . counsel-git-grep)
-      ("C-c k" . counsel-ag)
-      ("C-x C-f" . counsel-find-file))
+      ("C-c k" . counsel-rg)
+      ("C-x C-f" . counsel-find-file)
+      ("C-x r m" . counsel-bookmark))
     (ivy-mode 1)
     (setq ivy-use-virtual-buffers t)
     (setq enable-recursive-minibuffers t)
@@ -751,7 +785,8 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (set-face-foreground 'indent-guide-face "dimgray")
     (setq indent-guide-delay 0.2)
     :hook
-    (prog-mode . indent-guide-mode))
+    (prog-mode . indent-guide-mode)
+    (yaml-mode . indent-guide-mode))
 
   (load "server")
   (unless (server-running-p) (server-start))
@@ -774,12 +809,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
                                           ; (setq-default TeX-PDF-mode t)
 #+end_src
 
-** Customize
-#+begin_src emacs-lisp
-  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-  (when (file-exists-p custom-file)
-    (load custom-file))
-#+end_src
 * Credits
 This Emacs configuration was influenced and inspired by the following configurations.
 - [[https://github.com/MatthewZMD/.emacs.d][MT’s GNU Emacs Configuration]]
