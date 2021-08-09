@@ -93,20 +93,30 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (add-to-list 'load-path "~/.emacs.d/config")
   (setq ispell-program-name "aspell"
         ;; force the English dictionary, support Camel Case spelling check (tested with aspell 0.6)
-        ispell-extra-args '("--sug-mode=ultra" "--lang=en_US" "--run-together"))
+        ispell-extra-args '("--sug-mode=ultra" "--lang=en_US" "--camel-case"))
 #+end_src
 
 
 *** General
 
 #+begin_src emacs-lisp
+  (setq confirm-kill-emacs
+      (lambda (prompt) (y-or-n-p-with-timeout "Whether to quit Emacs:" 10 "y")))
   (when (eq system-type 'darwin)
     (use-package exec-path-from-shell
       :config
       (exec-path-from-shell-initialize)
-      (exec-path-from-shell-copy-env "PATH")
-      (exec-path-from-shell-copy-env "GOPATH")
-      (exec-path-from-shell-copy-env "GOROOT")))
+      (exec-path-from-shell-copy-env "PATH")))
+
+  (defun draft-buffer()
+    (interactive)
+    (find-file (expand-file-name "~/OneDrive/org-mode/personal.draft.org"))
+    (goto-char (point-max)))
+
+  (defun draft-work-buffer()
+    (interactive)
+    (find-file (expand-file-name "~/OneDrive/org-mode/work/draft.org"))
+    (goto-char (point-max)))
 #+end_src
 
 **** Thing Edit
@@ -197,6 +207,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :hook
     ((prog-mode outline-mode conf-mode) . whitespace-mode)
     (markdown-mode . whitespace-mode)
+    (yaml-mode . whitespace-mode)
     :config
     (setq whitespace-line-column fill-column) ;; limit line length
     ;; automatically clean up bad whitespace
@@ -204,7 +215,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
     ;; only show bad whitespace
     (setq whitespace-style '(face
                              trailing space-before-tab
-                             indentation empty space-after-tab))
+                             empty space-after-tab))
 
     (with-eval-after-load 'popup
       ;; advice for whitespace-mode conflict with popup
@@ -235,6 +246,15 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (use-package highlight-parentheses
   :hook
   (prog-mode . highlight-parentheses-mode))
+
+  (use-package pangu-spacing
+    :config
+    (setq pangu-spacing-real-insert-separtor t)
+    :hook
+    (org-mode . pangu-spacing-mode)
+    (markdown-mode . pangu-spacing-mode)
+    (gfm-mode . pangu-spacing-mode))
+
 #+end_src
 
 **** Style
@@ -324,18 +344,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :ensure nil)
 #+end_src
 
-** Snails
-#+begin_src emacs-lisp
-  (use-package snails
-    :ensure t
-    :quelpa (snails
-             :upgrade t
-             :fetcher github
-             :repo "manateelazycat/snails")
-    :bind
-    (:map global-map
-          ("C-x C-a" . snails)))
-#+end_src
 
 ** Funny Skins
 #+begin_src emacs-lisp
@@ -449,6 +457,21 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :init (ivy-rich-mode 1)
     :config
     (setq all-the-icons-ivy-rich-icon-size 0.8))
+
+  (use-package all-the-icons-ibuffer
+    :ensure t
+    :init (all-the-icons-ibuffer-mode 1))
+
+  (use-package ibuffer-projectile
+    :config
+    (add-hook 'ibuffer-hook
+              (lambda ()
+                (ibuffer-projectile-set-filter-groups)
+                (unless (eq ibuffer-sorting-mode 'alphabetic)
+                  (ibuffer-do-sort-by-alphabetic)))))
+
+  ;; dired auto use the other window path as target
+  (setq dired-dwim-target t)
 
   (cond ((eq system-type 'windows-nt)
          ;; Windows-specific code goes here.
@@ -566,6 +589,8 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :ensure nil)
   (use-package init-window
     :ensure nil)
+  (use-package init-dired
+    :ensure nil)
 
   (use-package multiple-cursors)
 
@@ -664,7 +689,8 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :ensure nil
     :config
     (epa-file-enable)
-    (setq epa-pinentry-mode 'loopback))
+    (setq epa-pinentry-mode 'loopback)
+    )
 
   ;; Global Settings:
     ;;; Key bindings
@@ -700,15 +726,14 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (global-set-key (kbd "C-c C-p") 'mc/mark-previous-like-this)
   (global-set-key (kbd "C-c C-a") 'mc/mark-all-like-this)
 
-  ;; Move backup file to dot folder
-      ;;; Don't clutter up directories with files~
-  (setq backup-directory-alist
-        `((".*" . ,temporary-file-directory)))
-
-      ;;; Don't clutter with #files either
-  (setq auto-save-file-name-transforms
-        `((".*" ,temporary-file-directory t)))
-
+  ;; Move backup file to tmp folder
+  (setq  backup-directory-alist `((".*" . ,temporary-file-directory))
+         auto-save-file-name-transforms `((".*" ,temporary-file-directory t))
+         backup-by-copying t
+         delete-old-versions t
+         kept-new-versions 6
+         kept-old-versions 2
+         version-control t)
 
   ;; Ace-window
   (global-set-key (kbd "C-M-o") 'ace-window)     ; Ace-window
@@ -718,18 +743,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :bind
     (("C-M-[" . avy-goto-char-2)))
 
-  ;; color-rg
-  (use-package color-rg
-    :ensure nil
-    :ensure-system-package
-    (rg . ripgrep)
-    :quelpa (color-rg
-             :fetcher github
-             :repo "manateelazycat/color-rg"
-             :files ("color-rg.el"))
-    :bind
-    (("M-s M-s" . color-rg-search-project)))
-
     ;;; Global
 
   (setq inhibit-compacting-font-caches t)
@@ -738,6 +751,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (use-package ivy
     :diminish ivy-mode
     :config
+    (setq ivy-use-selectable-prompt t)
     (use-package ivy-rich)
     (use-package swiper)
     (use-package counsel
@@ -762,7 +776,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
      ("M-x" . counsel-M-x)
      ("C-c g" . counsel-git)
      ("C-c j" . counsel-git-grep)
-     ("C-c k" . counsel-ag)
+     ("C-c k" . counsel-rg)
      ("C-x C-f" . counsel-find-file)
 
      :map minibuffer-local-map
@@ -770,6 +784,14 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
   ;; magit
   (use-package magit
+    :config
+    (use-package magit-delta
+      :config
+      (setq magit-delta-default-dark-theme "OneHalfDark")
+      (setq magit-delta-delta-args
+            `("--max-line-distance" "0.6"
+              "--24-bit-color" ,(if xterm-color--support-truecolor "always" "never")
+              "--color-only" "--minus-style" "normal red" "--plus-style" "normal green")))
     ;; :config
     ;; (use-package magit-todos
     ;;   :config
