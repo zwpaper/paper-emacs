@@ -648,7 +648,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (with-eval-after-load 'winum
       (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
     :config
-    (treemacs-resize-icons 44)
+    (treemacs-resize-icons 22)
     (treemacs-follow-mode t)
     (treemacs-filewatch-mode t)
     (treemacs-fringe-indicator-mode t)
