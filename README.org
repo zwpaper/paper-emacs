@@ -62,7 +62,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (setq dashboard-startup-banner "~/.emacs.d/config/ironman.png")
     (setq dashboard-items '((recents  . 10)
                             (bookmarks . 10)))
-    (add-to-list 'dashboard-items '(agenda) t)
     (dashboard-setup-startup-hook))
 #+END_SRC
 
@@ -125,6 +124,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (global-unset-key (kbd "C-w"))
   (global-unset-key (kbd "M-w"))
   (use-package thing-edit
+    :load-path "plugin/thing-edit"
     :ensure nil
     :bind
     (("C-w C-w" . thing-cut-word)
@@ -136,13 +136,79 @@ Because some packages need fully reload, It may need several restarting Emacs.
      ("C-w C-f" . thing-cut-filename)
      ("M-w M-f" . thing-copy-filename)
      ("C-w C-u" . thing-cut-url)
-     ("M-w M-u" . thing-copy-url))
-    ("C-w C-p" . thing-cut-parentheses)
-    ("M-w M-p" . thing-copy-parentheses)
-    ("C-w C-c" . thing-cut-comment)
-    ("M-w M-c" . thing-copy-comment)
-    ("C-w C-b" . thing-cut-whole-buffer)
-    ("M-w M-b" . thing-copy-whole-buffer))
+     ("M-w M-u" . thing-copy-url)
+     ("C-w C-p" . thing-cut-parentheses)
+     ("M-w M-p" . thing-copy-parentheses)
+     ("C-w C-c" . thing-cut-comment)
+     ("M-w M-c" . thing-copy-comment)
+     ("C-w C-b" . thing-cut-whole-buffer)
+     ("M-w M-b" . thing-copy-whole-buffer)))
+
+  (use-package tree-sitter)
+  (use-package tree-sitter-langs)
+  (use-package grammatical-edit
+    :load-path "plugin/grammatical-edit"
+    :ensure nil
+    :config
+    (dolist (hook (list
+                   'c-mode-common-hook
+                   'c-mode-hook
+                   'c++-mode-hook
+                   'java-mode-hook
+                   'haskell-mode-hook
+                   'emacs-lisp-mode-hook
+                   'lisp-interaction-mode-hook
+                   'lisp-mode-hook
+                   'maxima-mode-hook
+                   'ielm-mode-hook
+                   'sh-mode-hook
+                   'makefile-gmake-mode-hook
+                   'php-mode-hook
+                   'python-mode-hook
+                   'js-mode-hook
+                   'go-mode-hook
+                   'qml-mode-hook
+                   'jade-mode-hook
+                   'css-mode-hook
+                   'ruby-mode-hook
+                   'coffee-mode-hook
+                   'rust-mode-hook
+                   'qmake-mode-hook
+                   'lua-mode-hook
+                   'swift-mode-hook
+                   'minibuffer-inactive-mode-hook
+                   'typescript-mode-hook
+                   ))
+      (add-hook hook '(lambda () (grammatical-edit-mode 1))))
+    (define-key grammatical-edit-mode-map (kbd "(") 'grammatical-edit-open-round)
+    (define-key grammatical-edit-mode-map (kbd "[") 'grammatical-edit-open-bracket)
+    (define-key grammatical-edit-mode-map (kbd "{") 'grammatical-edit-open-curly)
+    (define-key grammatical-edit-mode-map (kbd ")") 'grammatical-edit-close-round)
+    (define-key grammatical-edit-mode-map (kbd "]") 'grammatical-edit-close-bracket)
+    (define-key grammatical-edit-mode-map (kbd "}") 'grammatical-edit-close-curly)
+    (define-key grammatical-edit-mode-map (kbd "=") 'grammatical-edit-equal)
+
+    (define-key grammatical-edit-mode-map (kbd "%") 'grammatical-edit-match-paren)
+    (define-key grammatical-edit-mode-map (kbd "\"") 'grammatical-edit-double-quote)
+    (define-key grammatical-edit-mode-map (kbd "'") 'grammatical-edit-single-quote)
+
+    (define-key grammatical-edit-mode-map (kbd "SPC") 'grammatical-edit-space)
+    (define-key grammatical-edit-mode-map (kbd "RET") 'grammatical-edit-newline)
+
+    (define-key grammatical-edit-mode-map (kbd "M-o") 'grammatical-edit-backward-delete)
+    (define-key grammatical-edit-mode-map (kbd "C-d") 'grammatical-edit-forward-delete)
+    (define-key grammatical-edit-mode-map (kbd "C-k") 'grammatical-edit-kill)
+
+    (define-key grammatical-edit-mode-map (kbd "M-\"") 'grammatical-edit-wrap-double-quote)
+    (define-key grammatical-edit-mode-map (kbd "M-'") 'grammatical-edit-wrap-single-quote)
+    (define-key grammatical-edit-mode-map (kbd "M-[") 'grammatical-edit-wrap-bracket)
+    (define-key grammatical-edit-mode-map (kbd "M-{") 'grammatical-edit-wrap-curly)
+    (define-key grammatical-edit-mode-map (kbd "M-(") 'grammatical-edit-wrap-round)
+    (define-key grammatical-edit-mode-map (kbd "M-)") 'grammatical-edit-unwrap)
+
+    (define-key grammatical-edit-mode-map (kbd "M-p") 'grammatical-edit-jump-right)
+    (define-key grammatical-edit-mode-map (kbd "M-n") 'grammatical-edit-jump-left)
+    (define-key grammatical-edit-mode-map (kbd "M-:") 'grammatical-edit-jump-out-pair-and-newline))
 #+end_src
 
 **** White spaces
@@ -387,46 +453,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
          (require 'all-the-icons nil t)))
 #+end_src
 
-*** Tab
-#+begin_src emacs-lisp
-  (use-package awesome-tab
-    :ensure nil
-    :commands (awesome-tab-mode)
-    :load-path "plugin/awesome-tab"
-    :init
-    (defhydra hydra-tab (
-                         :pre (awesome-tab-mode t)
-                         :post (awesome-tab-mode -1))
-      "
-   ^^^^Fast Move             ^^^^Tab                    ^^Search            ^^Misc
-  -^^^^--------------------+-^^^^---------------------+-^^----------------+-^^---------------------------
-     ^_k_^   prev group    | _C-a_^^     select first | _b_ search buffer | _C-k_   kill buffer
-   _h_   _l_  switch tab   | _C-e_^^     select last  | _g_ search group  | _C-S-k_ kill others in group
-     ^_j_^   next group    | _a_^^     ace jump     | ^^                | ^^
-   ^^0 ~ 9^^ select window | _C-h_/_C-l_ move current | ^^                | ^^
-  -^^^^--------------------+-^^^^---------------------+-^^----------------+-^^---------------------------
-  "
-      ("h" awesome-tab-backward-tab)
-      ("j" awesome-tab-forward-group)
-      ("k" awesome-tab-backward-group)
-       ("l" awesome-tab-forward-tab)
-      ("a" awesome-tab-ace-jump)
-      ("C-a" awesome-tab-select-beg-tab)
-      ("C-e" awesome-tab-select-end-tab)
-      ("C-h" awesome-tab-move-current-tab-to-left)
-      ("C-l" awesome-tab-move-current-tab-to-right)
-      ("b" ivy-switch-buffer)
-      ("g" awesome-tab-counsel-switch-group)
-      ("C-k" kill-current-buffer)
-      ("C-S-k" awesome-tab-kill-other-buffers-in-current-group)
-      ("q" nil "quit"))
-    ;:config
-    ;(awesome-tab-mode t)
-    (setq awesome-tab-style "box")
-    :bind
-    (("M-t" . hydra-tab/body)))
-#+end_src
-
 *** Nerd Icons
     install [[https://github.com/ryanoasis/nerd-fonts][Nerd Icons]] before using this
 
@@ -589,59 +615,13 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :ensure nil)
   (use-package init-window
     :ensure nil)
-  (use-package init-dired
-    :ensure nil)
+  ;(use-package init-dired
+  ;  :ensure nil)
 
   (use-package multiple-cursors)
 
-      ;;; Awesome pair
-  (use-package awesome-pair
-    :ensure nil
-    :config
-    (define-key awesome-pair-mode-map (kbd "(") 'awesome-pair-open-round)
-    (define-key awesome-pair-mode-map (kbd "[") 'awesome-pair-open-bracket)
-    (define-key awesome-pair-mode-map (kbd "{") 'awesome-pair-open-curly)
-    (define-key awesome-pair-mode-map (kbd ")") 'awesome-pair-close-round)
-    (define-key awesome-pair-mode-map (kbd "]") 'awesome-pair-close-bracket)
-    (define-key awesome-pair-mode-map (kbd "}") 'awesome-pair-close-curly)
-    (define-key awesome-pair-mode-map (kbd "=") 'awesome-pair-equal)
 
-    (define-key awesome-pair-mode-map (kbd "%") 'awesome-pair-match-paren)
-    (define-key awesome-pair-mode-map (kbd "\"") 'awesome-pair-double-quote)
-
-    (define-key awesome-pair-mode-map (kbd "SPC") 'awesome-pair-space)
-
-    (define-key awesome-pair-mode-map (kbd "C-d") 'awesome-pair-forward-delete)
-    (define-key awesome-pair-mode-map (kbd "C-k") 'awesome-pair-kill)
-
-    (define-key awesome-pair-mode-map (kbd "M-\"") 'awesome-pair-wrap-double-quote)
-    (define-key awesome-pair-mode-map (kbd "M-[") 'awesome-pair-wrap-bracket)
-    (define-key awesome-pair-mode-map (kbd "M-{") 'awesome-pair-wrap-curly)
-    (define-key awesome-pair-mode-map (kbd "M-(") 'awesome-pair-wrap-round)
-    (define-key awesome-pair-mode-map (kbd "M-)") 'awesome-pair-unwrap)
-
-    (define-key awesome-pair-mode-map (kbd "M-p r") 'awesome-pair-jump-right)
-    (define-key awesome-pair-mode-map (kbd "M-p l") 'awesome-pair-jump-left)
-
-    (dolist (hook (list
-                   'c-mode-common-hook
-                   'c-mode-hook
-                   'c++-mode-hook
-                   'haskell-mode-hook
-                   'emacs-lisp-mode-hook
-                   'lisp-interaction-mode-hook
-                   'lisp-mode-hook
-                   'sh-mode-hook
-                   'makefile-gmake-mode-hook
-                   'python-mode-hook
-                   'go-mode-hook
-                   'rust-mode-hook
-                   'lua-mode-hook
-                   'minibuffer-inactive-mode-hook
-                   ))
-      (add-hook hook '(lambda () (awesome-pair-mode 1)))))
-
-            ;;; Treemacs
+  ;;; Treemacs
   (use-package treemacs
     :defer t
     :init

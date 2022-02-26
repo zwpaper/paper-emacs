@@ -51,34 +51,34 @@
                                       "*Ibuffer*"
                                       "*esh command on file*")))
 
-(use-package centered-cursor-mode
-  :ensure nil
-  :load-path "plugin/centered-cursor-mode"
-  :init
-  (global-unset-key (kbd "M-r"))
-  (defun move-to-center ()
-    (interactive)
-    (move-to-window-line nil))
-  (defun move-to-top ()
-    (interactive)
-    (move-to-window-line 0))
-  (defun move-to-bottom ()
-    (interactive)
-    (move-to-window-line -1))
-  :config
-  ;; disable in terminal modes
-  ;; http://stackoverflow.com/a/6849467/519736
-  ;; also disable in Info mode, because it breaks going back with the backspace key
-  (define-global-minor-mode except-shell-centered-cursor-mode centered-cursor-mode
-    (lambda ()
-      (when (not (memq major-mode
-                       (list 'Info-mode 'term-mode 'eshell-mode 'shell-mode 'erc-mode)))
-        (centered-cursor-mode))))
-  (except-shell-centered-cursor-mode 1)
-  :bind
-  (("M-r" . #'move-to-center)
-   ("M-e" . #'move-to-top)
-   ("M-t" . #'move-to-bottom)))
+;; (use-package centered-cursor-mode
+;;   :ensure nil
+;;   :load-path "plugin/centered-cursor-mode"
+;;   :init
+;;   (global-unset-key (kbd "M-r"))
+;;   (defun move-to-center ()
+;;     (interactive)
+;;     (move-to-window-line nil))
+;;   (defun move-to-top ()
+;;     (interactive)
+;;     (move-to-window-line 0))
+;;   (defun move-to-bottom ()
+;;     (interactive)
+;;     (move-to-window-line -1))
+;;   :config
+;;   ;; disable in terminal modes
+;;   ;; http://stackoverflow.com/a/6849467/519736
+;;   ;; also disable in Info mode, because it breaks going back with the backspace key
+;;   (define-global-minor-mode except-shell-centered-cursor-mode centered-cursor-mode
+;;     (lambda ()
+;;       (when (not (memq major-mode
+;;                        (list 'Info-mode 'term-mode 'eshell-mode 'shell-mode 'erc-mode)))
+;;         (centered-cursor-mode))))
+;;   (except-shell-centered-cursor-mode 1)
+;;   :bind
+;;   (("M-r" . #'move-to-center)
+;;    ("M-e" . #'move-to-top)
+;;    ("M-t" . #'move-to-bottom)))
 
 ;; Quickly switch windows
 (use-package ace-window
