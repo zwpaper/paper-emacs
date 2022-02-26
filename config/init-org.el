@@ -29,7 +29,7 @@
           (concat "[" (org-format-outline-path (list x)) "]")
         "")))
   ;;; %b can do breadcrumb, but make it look mess
-  (setq org-agenda-prefix-format " %i %?-14(org-agenda-prefix-project) ")
+  ;; (setq org-agenda-prefix-format " %i %?-14(org-agenda-prefix-project) ")
 
   (defun org-insert-image ()
     "insert a image from clipboard"
