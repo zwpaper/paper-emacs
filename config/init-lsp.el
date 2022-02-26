@@ -55,10 +55,12 @@
     :custom-face
     (lsp-ui-sideline-code-action ((t (:inherit warning))))
     :pretty-hydra
-    ((:title (pretty-hydra-title "LSP UI" 'faicon "rocket")
+    ((:title (pretty-hydra-title "LSP UI" 'faicon "rocket" :face 'all-the-icons-green)
              :color amaranth :quit-key "q")
      ("Doc"
-      (("d e" (lsp-ui-doc-enable (not lsp-ui-doc-mode))
+      (("d e" (progn
+                (lsp-ui-doc-enable (not lsp-ui-doc-mode))
+                (setq lsp-ui-doc-enable (not lsp-ui-doc-enable)))
         "enable" :toggle lsp-ui-doc-mode)
        ("d s" (setq lsp-ui-doc-include-signature (not lsp-ui-doc-include-signature))
         "signature" :toggle lsp-ui-doc-include-signature)
@@ -68,12 +70,16 @@
         "bottom" :toggle (eq lsp-ui-doc-position 'bottom))
        ("d p" (setq lsp-ui-doc-position 'at-point)
         "at point" :toggle (eq lsp-ui-doc-position 'at-point))
+       ("d h" (setq lsp-ui-doc-header (not lsp-ui-doc-header))
+        "header" :toggle lsp-ui-doc-header)
        ("d f" (setq lsp-ui-doc-alignment 'frame)
         "align frame" :toggle (eq lsp-ui-doc-alignment 'frame))
        ("d w" (setq lsp-ui-doc-alignment 'window)
         "align window" :toggle (eq lsp-ui-doc-alignment 'window)))
       "Sideline"
-      (("s e" (lsp-ui-sideline-enable (not lsp-ui-sideline-mode))
+      (("s e" (progn
+                (lsp-ui-sideline-enable (not lsp-ui-sideline-mode))
+                (setq lsp-ui-sideline-enable (not lsp-ui-sideline-enable)))
         "enable" :toggle lsp-ui-sideline-mode)
        ("s h" (setq lsp-ui-sideline-show-hover (not lsp-ui-sideline-show-hover))
         "hover" :toggle lsp-ui-sideline-show-hover)
@@ -99,12 +105,6 @@
        ("M-b" backward-word nil)
        ("M-f" forward-word nil)
        ("c" lsp-ui-sideline-apply-code-actions "apply code actions"))))
-
-    (use-package lsp-grammarly
-      :ensure t
-      :hook (text-mode . (lambda ()
-                           (require 'lsp-grammarly)
-                           (lsp))))  ; or lsp-deferred
     :hook
     (lsp-mode . lsp-ui-mode)
     (shell-script-mode . lsp-mode)
@@ -131,6 +131,12 @@
                                       ,(face-foreground 'font-lock-constant-face)
                                       ,(face-foreground 'font-lock-variable-name-face)))
     :config
+    (use-package lsp-grammarly
+      :ensure t
+      :hook (text-mode . (lambda ()
+                           (require 'lsp-grammarly)
+                           (lsp))))  ; or lsp-deferred
+
     (add-to-list 'lsp-ui-doc-frame-parameters '(right-fringe . 8))
 
     ;; `C-g'to close doc

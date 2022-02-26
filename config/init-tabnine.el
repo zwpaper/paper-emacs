@@ -4,9 +4,11 @@
 
 ;;; Code:
 
-(use-package company-tabnine :ensure t)
-(setq company-idle-delay 0)
-(setq company-show-numbers t)
+(use-package company-tabnine
+  :ensure t
+  :config
+  (add-to-list 'company-backends #'company-tabnine)
+  (setq company-idle-delay 0))
 
 (defun use-package-list-insert (elem xs &optional anchor after test)
   "Insert ELEM into the list XS.
@@ -31,16 +33,6 @@
       (if after
           (nreverse (cons elem result))
         (cons elem (nreverse result))))))
-
-(with-eval-after-load 'lsp-mode
-  (require 'company-lsp)
-  (setq company-backends
-        (use-package-list-insert #'company-lsp company-backends
-                                 'company-tabnine t)))
-
-(with-eval-after-load 'company
-  (push #'company-tabnine company-backends))
-
 
 ;; The free version of TabNine is good enough,
 ;; and below code is recommended that TabNine not always
