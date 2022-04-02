@@ -4,9 +4,9 @@
 [submodule "fuz.el"]
 	path = plugin/fuz
 	url = git@github.com:cireu/fuz.el.git
-[submodule "thing-edit"]
-	path = plugin/thing-edit
-	url = git@github.com:manateelazycat/thing-edit.git
 [submodule "grammatical-edit"]
 	path = plugin/grammatical-edit
 	url = git@github.com:manateelazycat/grammatical-edit.git
+[submodule "dash-at-point"]
+	path = plugin/dash-at-point
+	url = git@github.com:stanaka/dash-at-point.git
