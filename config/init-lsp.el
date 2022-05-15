@@ -39,10 +39,12 @@
   (use-package which-key
     :config
     (which-key-mode))
-  :hook ((go-mode . lsp)
+  :hook (
+                                        ; (go-mode . lsp)
+                                        ; (before-save . should-format-modes-before-save-hook)
          (rust-mode . lsp)
          (lsp-mode . lsp-enable-which-key-integration)
-         (before-save . should-format-modes-before-save-hook))
+         )
   :config
   (use-package lsp-ivy
     :commands lsp-ivy-workspace-symbol
@@ -133,6 +135,8 @@
     :config
     (use-package lsp-grammarly
       :ensure t
+      :init
+      (use-package keytar)
       :hook (text-mode . (lambda ()
                            (require 'lsp-grammarly)
                            (lsp))))  ; or lsp-deferred

@@ -17,7 +17,7 @@
   ;; Format with `goimports' if possible, otherwise using `gofmt'
   ;; (when (executable-find "goimports")
   ;;   (setq gofmt-command "goimports"))
-  (add-hook 'before-save-hook 'lsp-format-buffer)
+  ;; (add-hook 'before-save-hook 'lsp-format-buffer)
   ;; (add-hook 'before-save-hook #'lsp-format-buffer)
   ;; (add-hook 'before-save-hook #'lsp-organize-imports)
 
