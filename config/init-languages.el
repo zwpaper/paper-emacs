@@ -75,6 +75,15 @@
                      (lsp-bridge-mode 1)))))
 
 
+(use-package dash-at-point
+  :load-path "plugin/dash-at-point"
+  :ensure nil
+  :init
+  (global-unset-key (kbd "C-c d"))
+  :bind
+  (("C-c d" . dash-at-point)
+   ("C-c e" . dash-at-point-with-docset)))
+
 ;; YASnippet
 (use-package yasnippet
   :init
