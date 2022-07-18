@@ -15,9 +15,12 @@
     (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY")))
 
   ;; Format with `goimports' if possible, otherwise using `gofmt'
-  ;; (when (executable-find "goimports")
-  ;;   (setq gofmt-command "goimports"))
-  ;; (add-hook 'before-save-hook 'lsp-format-buffer)
+  (when (executable-find "goimports")
+    (use-package reformatter
+      :config
+      (reformatter-define go-format
+        :program "goimports")))
+  ;; (add-hook 'before-save-hook 'format-all-buffer)
   ;; (add-hook 'before-save-hook #'lsp-format-buffer)
   ;; (add-hook 'before-save-hook #'lsp-organize-imports)
 
@@ -70,16 +73,38 @@
   (unless (executable-find "gopls")
     (go-update-tools))
 
-  (setq compile-command "echo Building... && go build -v && echo Testing... && go test -v && echo Linter... && golangci-lint run")
   (setq compilation-read-command nil)
+
+  (defun project-compile ()
+    "Run compile over the current project or pwd."
+    (interactive)
+    (let ((default-directory (or (projectile-project-root)
+                                 (symbol-value 'default-directory))))
+      (compile "make build")))
+
+  (defun project-image ()
+    "Run compile over the current project or pwd."
+    (interactive)
+    (let ((default-directory (or (projectile-project-root)
+                                 (symbol-value 'default-directory)))
+          (compilation-scroll-output t))
+      (compile "make image")))
+
+  (defun project-image-push ()
+    "Run compile over the current project or pwd."
+    (interactive)
+    (let ((default-directory (or (projectile-project-root)
+                                 (symbol-value 'default-directory))))
+      (compile "make push")))
 
   :bind
   (:map go-mode-map
-        ("C-c C-r" . compile)
-        ([remap xref-find-definitions] . godef-jump)
+        ("C-c C-r" . project-compile)
+        ("C-c C-i" . project-image)
+        ("C-c C-p" . project-image-push)
         ("C-c R" . go-remove-unused-imports))
-  ;;:hook
-  ;; (go-mode . (lambda() (run-with-idle-timer 10 nil 'maple/go-packages)))
+  :hook
+  (go-mode . go-format-on-save-mode)
   )
 
 (use-package go-fill-struct

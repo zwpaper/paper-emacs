@@ -7,72 +7,49 @@
 (eval-when-compile
   (require 'init-const))
 
+(use-package tree-sitter
+  :init
+  (use-package tree-sitter-langs)
+  :config
+  (global-tree-sitter-mode)
+  (add-hook 'prog-mode-hook #'tree-sitter-hl-mode))
+
+
+
+
 (use-package lsp-bridge
-  :load-path "~/code/el/lsp-bridge"
+  :commands lsp-bridge-mode
+  :load-path "~/code/z/lsp-bridge"
   :ensure nil
   :bind
   (:map lsp-bridge-mode-map
         ("M-." . lsp-bridge-find-def)
-        ("C-u M-." . lsp-bridge-find-def-other-window)
+        ("M-n i" . lsp-bridge-find-impl)
+        ("M-n ." . lsp-bridge-find-def-other-window)
         ("M-," . lsp-bridge-return-from-def)
-        ("M-n M-d" . lsp-bridge-lookup-documentation)
-        ("M-n M-r" . lsp-bridge-rename))
-  :init
-  (use-package format-all)
-  (use-package posframe)
-  (use-package corfu)
-  (use-package orderless
-    :ensure t
-    :custom
-    (completion-styles '(orderless basic))
-    (completion-category-overrides '((file (styles basic partial-completion)))))
-  :config
-  (global-corfu-mode)
-  (require 'lsp-bridge-orderless)   ;; make lsp-bridge support fuzzy match, optional
-  (require 'lsp-bridge-icon)        ;; show icon for completion items, optional
-  ;; Enable auto completion in elisp mode.
-  (dolist (hook (list
-                 'emacs-lisp-mode-hook
-                 ))
-    (add-hook hook (lambda ()
-                     (setq-local corfu-auto t))))
+        ("M-n d" . lsp-bridge-lookup-documentation)
+        ("M-n r" . lsp-bridge-rename)
+        ("M-n n" . lsp-bridge-jump-to-next-diagnostic)
+        ("M-n p" . lsp-bridge-jump-to-prev-diagnostic)
+        ("M-n l" . lsp-bridge-list-diagnostics)
+        ("M-n q" . lsp-bridge-restart-process))
 
-  ;; Enable lsp-bridge.
-  (dolist (hook (list
-                 'c-mode-hook
-                 'c++-mode-hook
-                 ;; 'java-mode-hook
-                 'python-mode-hook
-                 ;; 'ruby-mode-hook
-                 'rust-mode-hook
-                 ;; 'elixir-mode-hook
-                 'go-mode-hook
-                 ;; 'haskell-mode-hook
-                 ;; 'haskell-literate-mode-hook
-                 ;; 'dart-mode-hook
-                 ;; 'scala-mode-hook
-                 ;; 'typescript-mode-hook
-                 ;; 'typescript-tsx-mode-hook
-                 ;; 'js2-mode-hook
-                 ;; 'js-mode-hook
-                 ;; 'rjsx-mode-hook
-                 ;; 'tuareg-mode-hook
-                 ;; 'latex-mode-hook
-                 ;; 'Tex-latex-mode-hook
-                 ;; 'texmode-hook
-                 ;; 'context-mode-hook
-                 ;; 'texinfo-mode-hook
-                 ;; 'bibtex-mode-hook
-                 ;; 'clojure-mode-hook
-                 ;; 'clojurec-mode-hook
-                 ;; 'clojurescript-mode-hook
-                 ;; 'clojurex-mode-hook
-                 'sh-mode-hook
-                 ;; 'web-mode-hook
-                 ))
-    (add-hook hook (lambda ()
-                     (setq-local corfu-auto nil)  ;; let lsp-bridge control when popup completion frame
-                     (lsp-bridge-mode 1)))))
+  :init
+  (global-unset-key (kbd "M-,"))
+  (global-unset-key (kbd "M-."))
+  (use-package format-all
+    :config
+    (add-hook 'prog-mode-hook 'format-all-mode)
+    :bind
+    (:map lsp-bridge-mode-map ;; no format-all-mode-map, use lsp bridge
+          ("M-n f" . format-all-buffer)))
+  (use-package yasnippet)
+  (use-package markdown-mode)
+  (use-package posframe)
+
+  :config
+  (yas-global-mode)
+  (global-lsp-bridge-mode))
 
 
 (use-package dash-at-point
@@ -120,42 +97,6 @@
           :config (setq flycheck-pos-tip-timeout 30)))
     (use-package flycheck-popup-tip
       :hook (flycheck-mode . flycheck-popup-tip-mode))))
-
-;;; (use-package lsp-mode
-;;;   :custom-face
-;;;   (lsp-ui-doc-background ((t (:background nil))))
-;;;   (lsp-ui-doc-header ((t (:inherit (font-lock-string-face italic)))))
-;;;   :commands lsp
-;;;   :init
-;;;   (setq lsp-auto-guess-root nil)
-;;;   :config
-;;;   (setq lsp-prefer-flymake nil)
-;;;   :bind (:map lsp-mode-map
-;;;               ("C-c C-d" . lsp-describe-thing-at-point)))
-;;;
-;;; (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
-;;; ; (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
-;;;
-;;; (use-package lsp-ui
-;;;   :init (setq lsp-ui-doc-enable t
-;;;               lsp-ui-doc-header t
-;;;               lsp-ui-doc-include-signature t
-;;;               lsp-ui-doc-position 'top
-;;;               lsp-ui-doc-use-webkit t
-;;;               lsp-ui-doc-border (face-foreground 'default)
-;;;
-;;;               lsp-ui-sideline-enable nil
-;;;               lsp-ui-sideline-ignore-duplicate t)
-;;;   :config
-;;;   (setq lsp-ui-sideline-enable nil)
-;;;   :hook
-;;;   (lsp-mode . lsp-ui-mode)
-;;;   :bind (:map lsp-ui-mode-map
-;;;               ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
-;;;               ([remap xref-find-references] . lsp-ui-peek-find-references)
-;;;               ("C-c u" . lsp-ui-imenu)))
-;;;
-;;; (use-package company-posframe)
 
 ;;; c/c++
 ;; using ccls: https://github.com/MaskRay/ccls
