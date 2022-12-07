@@ -14,16 +14,6 @@
   (with-eval-after-load 'exec-path-from-shell
     (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY")))
 
-  ;; Format with `goimports' if possible, otherwise using `gofmt'
-  (when (executable-find "goimports")
-    (use-package reformatter
-      :config
-      (reformatter-define go-format
-        :program "goimports")))
-  ;; (add-hook 'before-save-hook 'format-all-buffer)
-  ;; (add-hook 'before-save-hook #'lsp-format-buffer)
-  ;; (add-hook 'before-save-hook #'lsp-organize-imports)
-
   ;; Install or update tools
   (defvar go--tools '("golang.org/x/tools/cmd/goimports"
                       "golang.org/x/tools/cmd/gorename"
@@ -41,6 +31,8 @@
   ;; https://github.com/golang/tools/blob/master/gopls/doc/user.md#installation
   (defvar go--tools-no-update '("golang.org/x/tools/gopls@latest")
     "All necessary go tools without update the dependencies.")
+
+  (add-hook 'before-save-hook 'format-all-buffer)
 
   (defun go-update-tools ()
     "Install or update go tools."
@@ -104,8 +96,10 @@
         ("C-c C-p" . project-image-push)
         ("C-c R" . go-remove-unused-imports))
   :hook
-  (go-mode . go-format-on-save-mode)
-  )
+  (go-mode . (lambda ()
+                (if (string-prefix-p "/Users/zhangwei/code/golang/src/gitlab.bj.sensetime.com/diamond/service-providers/redis/redis-operator" (buffer-file-name))
+                    (setenv "GO111MODULE" "off")
+                  nil))))
 
 (use-package go-fill-struct
   ;; go get -u github.com/davidrjenni/reftools/cmd/fillstruct

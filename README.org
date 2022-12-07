@@ -28,7 +28,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (setq use-package-always-ensure t)
 
   (use-package use-package-ensure-system-package)
-  (use-package use-package-hydra)
 #+end_src
 
 
@@ -69,35 +68,37 @@ Because some packages need fully reload, It may need several restarting Emacs.
    Download some packages from Internet
 
 #+begin_src emacs-lisp
-  (setq manual-pakages
-        '(
-          "https://raw.githubusercontent.com/manateelazycat/awesome-pair/master/awesome-pair.el"
-          "https://raw.githubusercontent.com/manateelazycat/thing-edit/master/thing-edit.el"
-          "https://raw.githubusercontent.com/joaotavora/autopair/master/autopair.el"
-          "https://raw.githubusercontent.com/zk-phi/indent-guide/master/indent-guide.el"
-          "https://raw.githubusercontent.com/beancount/beancount/master/editors/emacs/beancount.el"))
+    (setq manual-pakages
+          '(
+            "https://raw.githubusercontent.com/manateelazycat/awesome-pair/master/awesome-pair.el"
+            "https://raw.githubusercontent.com/manateelazycat/thing-edit/master/thing-edit.el"
+            "https://raw.githubusercontent.com/joaotavora/autopair/master/autopair.el"
+            "https://raw.githubusercontent.com/zk-phi/indent-guide/master/indent-guide.el"
+            "https://raw.githubusercontent.com/beancount/beancount/master/editors/emacs/beancount.el"))
 
-;  (while manual-pakages
-;    (url-copy-file (car manual-pakages)
-;                   (concat "~/.emacs.d/plugin/" (car (last (split-string (car manual-pakages) "/"))))
-;                   t)
-;    (setq manual-pakages (cdr manual-pakages)))
+  ;  (while manual-pakages
+  ;    (url-copy-file (car manual-pakages)
+  ;                   (concat "~/.emacs.d/plugin/" (car (last (split-string (car manual-pakages) "/"))))
+  ;                   t)
+  ;    (setq manual-pakages (cdr manual-pakages)))
 
-  ;;; Vars
-  (setq-default indent-tabs-mode nil)
-  (setq-default tab-width 4)
-  (add-to-list 'exec-path "/usr/local/bin")
-  (add-to-list 'load-path "~/.emacs.d/plugin")
-  (add-to-list 'load-path "~/.emacs.d/config")
-  (setq ispell-program-name "aspell"
-        ;; force the English dictionary, support Camel Case spelling check (tested with aspell 0.6)
-        ispell-extra-args '("--sug-mode=ultra" "--lang=en_US" "--camel-case"))
+    ;;; Vars
+    (setq-default indent-tabs-mode nil)
+    (setq column-number-mode t)
+    (setq-default tab-width 4)
+    (add-to-list 'exec-path "/usr/local/bin")
+    (add-to-list 'load-path "~/.emacs.d/plugin")
+    (add-to-list 'load-path "~/.emacs.d/config")
+    (setq ispell-program-name "aspell"
+          ;; force the English dictionary, support Camel Case spelling check (tested with aspell 0.6)
+          ispell-extra-args '("--sug-mode=ultra" "--lang=en_US" "--camel-case"))
 #+end_src
 
 
 *** General
 
 #+begin_src emacs-lisp
+  (setq-default buffer-file-coding-system 'utf-8-unix)
   (setq confirm-kill-emacs
       (lambda (prompt) (y-or-n-p-with-timeout "Whether to quit Emacs:" 10 "y")))
   (when (eq system-type 'darwin)
@@ -208,6 +209,13 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
 **** White spaces
 #+begin_src emacs-lisp
+  (use-package jieba
+    :ensure nil
+    :load-path "~/code/z/jieba.el"
+    :commands jieba-mode
+    :config
+    (jieba-mode))
+
   (defun moon-hungry-delete ()
     "Smart and clean delete.
   If we are at the beginning of a line, backspace
@@ -297,16 +305,17 @@ Because some packages need fully reload, It may need several restarting Emacs.
             (whitespace-mode 1)))))
 
   (use-package aggressive-indent
-  :config
-  (global-aggressive-indent-mode))
+    :config
+    (global-aggressive-indent-mode 1)
+    (add-to-list 'aggressive-indent-excluded-modes 'go-mode))
 
-  (use-package rainbow-delimiters
-  :hook
-  (prog-mode . rainbow-delimiters-mode))
+  ;; (use-package rainbow-delimiters
+  ;;   :hook
+  ;;   (prog-mode . rainbow-delimiters-mode))
 
   (use-package highlight-parentheses
-  :hook
-  (prog-mode . highlight-parentheses-mode))
+    :hook
+    (prog-mode . highlight-parentheses-mode))
 
   (use-package pangu-spacing
     :config
@@ -431,6 +440,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
       "Recenter and pulse the current line."
       (recenter)
       (my-pulse-momentary-line))
+
     :hook (((dumb-jump-after-jump
              imenu-after-jump) . my-recenter-and-pulse)
            ((bookmark-after-jump
@@ -446,13 +456,12 @@ Because some packages need fully reload, It may need several restarting Emacs.
                    pop-global-mark
                    goto-last-change))
       (advice-add cmd :after #'my-recenter-and-pulse)))
+
   (use-package emojify
     :config
     (add-hook 'org-mode-hook #'emojify-mode))
   (use-package doom-modeline
-    :config
-    :hook
-    (after-init . doom-modeline-init))
+    :init (doom-modeline-mode 1))
   (use-package nyan-mode
     :hook
     (after-init . nyan-mode))
@@ -471,7 +480,8 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
           doom-themes-enable-italic t) ; if nil, italics is universally disabled
 
-    (setq current-theme 'doom-nord)
+    ;; (setq current-theme 'doom-nord)
+    (setq current-theme 'modus-vivendi)
 
     ;; Enable flashing mode-line on errors
     (doom-themes-visual-bell-config)
