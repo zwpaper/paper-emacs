@@ -7,50 +7,67 @@
 (eval-when-compile
   (require 'init-const))
 
-(use-package tree-sitter
-  :init
-  (use-package tree-sitter-langs)
-  :config
-  (global-tree-sitter-mode)
-  (add-hook 'prog-mode-hook #'tree-sitter-hl-mode))
-
-
+;; (use-package tree-sitter
+;;   :init
+;;   (local-unset-key (kbd "M-t"))
+;;   (use-package tree-sitter-langs)
+;;   :config
+;;   (defun tree-sitter-force-update()
+;;     (interactive)
+;;     (setq tree-sitter-tree nil)
+;;     (tree-sitter--do-parse))
+;;   (global-tree-sitter-mode)
+;;   (add-hook 'prog-mode-hook #'tree-sitter-hl-mode)
+;;   :bind
+;;   ("M-t" . tree-sitter-force-update))
 
 
 (use-package lsp-bridge
   :commands lsp-bridge-mode
-  :load-path "~/code/z/lsp-bridge"
+  :load-path "/Users/zhangwei/code/z/lsp-bridge"
   :ensure nil
   :bind
   (:map lsp-bridge-mode-map
         ("M-." . lsp-bridge-find-def)
         ("M-n i" . lsp-bridge-find-impl)
+        ("M-n RET" . lsp-bridge-code-action)
         ("M-n ." . lsp-bridge-find-def-other-window)
-        ("M-," . lsp-bridge-return-from-def)
+        ("M-," . lsp-bridge-find-def-return)
         ("M-n d" . lsp-bridge-lookup-documentation)
         ("M-n r" . lsp-bridge-rename)
-        ("M-n n" . lsp-bridge-jump-to-next-diagnostic)
-        ("M-n p" . lsp-bridge-jump-to-prev-diagnostic)
-        ("M-n l" . lsp-bridge-list-diagnostics)
+        ("M-n n" . lsp-bridge-diagnostic-jump-next)
+        ("M-n p" . lsp-bridge-diagnostic-jump-prev)
+        ("M-n l" . lsp-bridge-diagnostic-list)
         ("M-n q" . lsp-bridge-restart-process))
 
   :init
-  (global-unset-key (kbd "M-,"))
-  (global-unset-key (kbd "M-."))
-  (use-package format-all
-    :config
-    (add-hook 'prog-mode-hook 'format-all-mode)
-    :bind
-    (:map lsp-bridge-mode-map ;; no format-all-mode-map, use lsp bridge
-          ("M-n f" . format-all-buffer)))
-  (use-package yasnippet)
   (use-package markdown-mode)
   (use-package posframe)
 
   :config
-  (yas-global-mode)
-  (global-lsp-bridge-mode))
+  (local-unset-key (kbd "M-,"))
+  (local-unset-key (kbd "M-."))
+  (setq lsp-bridge-enable-auto-format-code t)
+  (setq lsp-bridge-auto-format-code-idle 3)
 
+  (require 'cl-lib)
+  (setq lsp-bridge-get-project-path-by-filepath
+        (lambda (path)
+          (cl-dolist (project
+                      '("/Users/zhangwei/code/golang/src/gitlab.bj.sensetime.com/diamond/service-providers/redis/redis-operator"
+                        "/Users/zhangwei/code/sensetime/sp/mysql/service-broker"))
+            (if (string-prefix-p project path)
+                (cl-return project)
+              nil))))
+
+  ;; (use-package format-all
+  ;;   :config
+  ;;   (add-hook 'prog-mode-hook 'format-all-mode)
+  ;;   :bind
+  ;;   (:map lsp-bridge-mode-map ;; no format-all-mode-map, use lsp bridge
+  ;;         ("M-n f" . format-all-buffer)))
+
+  (global-lsp-bridge-mode))
 
 (use-package dash-at-point
   :load-path "plugin/dash-at-point"
@@ -98,13 +115,6 @@
     (use-package flycheck-popup-tip
       :hook (flycheck-mode . flycheck-popup-tip-mode))))
 
-;;; c/c++
-;; using ccls: https://github.com/MaskRay/ccls
-(use-package ccls
-  :config
-  (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
-  :hook ((c-mode c++-mode objc-mode) .
-         (lambda () (require 'ccls) (lsp))))
 ;; (use-package google-c-style
 ;;   :hook
 ;;   ((c-mode c++-mode) . google-set-c-style)

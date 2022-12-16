@@ -51,34 +51,20 @@
                                       "*Ibuffer*"
                                       "*esh command on file*")))
 
-;; (use-package centered-cursor-mode
-;;   :ensure nil
-;;   :load-path "plugin/centered-cursor-mode"
-;;   :init
-;;   (global-unset-key (kbd "M-r"))
-;;   (defun move-to-center ()
-;;     (interactive)
-;;     (move-to-window-line nil))
-;;   (defun move-to-top ()
-;;     (interactive)
-;;     (move-to-window-line 0))
-;;   (defun move-to-bottom ()
-;;     (interactive)
-;;     (move-to-window-line -1))
-;;   :config
-;;   ;; disable in terminal modes
-;;   ;; http://stackoverflow.com/a/6849467/519736
-;;   ;; also disable in Info mode, because it breaks going back with the backspace key
-;;   (define-global-minor-mode except-shell-centered-cursor-mode centered-cursor-mode
-;;     (lambda ()
-;;       (when (not (memq major-mode
-;;                        (list 'Info-mode 'term-mode 'eshell-mode 'shell-mode 'erc-mode)))
-;;         (centered-cursor-mode))))
-;;   (except-shell-centered-cursor-mode 1)
-;;   :bind
-;;   (("M-r" . #'move-to-center)
-;;    ("M-e" . #'move-to-top)
-;;    ("M-t" . #'move-to-bottom)))
+(use-package blink-search
+  :ensure nil
+  :load-path "/Users/zhangwei/code/z/blink-search"
+  :config
+  (setq blink-search-search-backends
+        '("Current Buffer"
+          "Grep File"
+          "Buffer List"
+          "Find File"
+          "IMenu"
+          "Common Directory"
+          "Google Suggest"))
+  :bind
+  (("M-s M-s" . blink-search)))
 
 ;; Quickly switch windows
 (use-package ace-window
@@ -277,6 +263,54 @@
           ((process-menu-mode cargo-process-mode) :select t :size 0.3 :align 'below :autoclose t)
           (list-environment-mode :select t :size 0.3 :align 'below :autoclose t)
           (tabulated-list-mode :size 0.4 :align 'below))))
+
+;;; highlight current block
+(unless (package-installed-p 'highlight-blocks)
+  (package-install 'highlight-blocks))
+
+(use-package highlight-blocks
+  :config
+  (setq highlight-blocks--rainbow-colors
+        '("#064b57" "#FFCACA" "#FFFFBA" "#CACAFF" "#CAFFCA" "#FFBAFF"))
+
+  (setq highlight-blocks-max-face-count
+        (length highlight-blocks--rainbow-colors))
+
+  (defun highlight-blocks--define-rainbow-colors (colors)
+    (dotimes (i (length colors))
+      (face-spec-set
+       (intern (format "highlight-blocks-depth-%d-face" (1+ i)))
+       `((((class color) (background dark))  :background ,(nth i colors))
+         (((class color) (background light)) :background ,(nth i colors)))
+       'face-defface-spec)))
+
+
+  (highlight-blocks--define-rainbow-colors highlight-blocks--rainbow-colors)
+
+  (defun highlight-blocks--get-bounds ()
+    "Get the bounds of the nested blocks the point is in.
+The returned value is a list of conses, where car is the start of a
+block and cdr is the end of a block, starting from the outermost
+block."
+    (let ((result '())
+          (parse-sexp-ignore-comments t))
+      (condition-case nil
+          (let* ((parse-state (syntax-ppss))
+                 (starting-pos (if (or (nth 3 parse-state)
+                                       (nth 4 parse-state))
+                                   (nth 8 parse-state)
+                                 (point)))
+                 (begins (nreverse (nth 9 parse-state)))
+                 (end starting-pos)
+                 (i 0))
+            (while (or (eq highlight-blocks-max-innermost-block-count t)
+                       (< i highlight-blocks-max-innermost-block-count))
+              (setq end (scan-lists end 1 1))
+              (push (cons (pop begins) end) result)
+              (setq i (1+ i))))
+        (scan-error))
+      ;; 修改下这个函数函数的返回值，可以只高亮当前所在的块
+      (last result))))
 
 (provide 'init-window)
 

@@ -153,7 +153,5 @@
                 (set-face-background 'lsp-ui-doc-background
                                      (face-background 'tooltip))))))
 
-(use-package devdocs-browser)
-
 (provide 'init-lsp)
 ;;; init-lsp.el ends here

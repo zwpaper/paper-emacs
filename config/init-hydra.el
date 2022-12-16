@@ -7,20 +7,22 @@
 (eval-when-compile
   (require 'init-const))
 
-(use-package hydra)
-
-(defhydra hydra-move-window (global-map "M-o")
-  "
+(use-package hydra
+  :config
+  (defhydra hydra-move-window (global-map "M-o")
+    "
    ^^^^Scroll
   -^^^^-------------^--------------------
      ^_k_^    up    ^_i_^    increase test
      ^_j_^    down  ^_d_^    decrease test
   -^^^^-------------^--------------------
 "
-  ("i" text-scale-increase)
-  ("d" text-scale-decrease)
-  ("j" scroll-up-line)
-  ("k" scroll-down-line))
+    ("i" text-scale-increase)
+    ("d" text-scale-decrease)
+    ("j" scroll-up-line)
+    ("k" scroll-down-line))
+  )
+
 
 (use-package pretty-hydra
   :init
@@ -38,10 +40,6 @@
               (apply f (list icon-name :face face :height height :v-adjust v-adjust))
               " "))))
        (propertize title 'face face)))))
-
-(use-package hydra-posframe
-  :load-path "~/.emacs.d/plugin/hydra-posframe"
-  :hook (after-init . hydra-posframe-mode))
 
 (provide 'init-hydra)
 ;;; init-hydra.el ends here
