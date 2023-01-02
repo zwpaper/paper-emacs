@@ -7,24 +7,20 @@
 (eval-when-compile
   (require 'init-const))
 
-;; (use-package tree-sitter
-;;   :init
-;;   (local-unset-key (kbd "M-t"))
-;;   (use-package tree-sitter-langs)
-;;   :config
-;;   (defun tree-sitter-force-update()
-;;     (interactive)
-;;     (setq tree-sitter-tree nil)
-;;     (tree-sitter--do-parse))
-;;   (global-tree-sitter-mode)
-;;   (add-hook 'prog-mode-hook #'tree-sitter-hl-mode)
-;;   :bind
-;;   ("M-t" . tree-sitter-force-update))
-
+(use-package copilot
+  :load-path "~/code/copilot.el"
+  :ensure nil
+  :hook
+  (prog-mode . copilot-mode)
+  :bind
+  (:map copilot-mode-map
+        ("M-n e" . copilot-accept-completion-by-line)
+        ("M-n w" . copilot-accept-completion-by-word)
+        ("M-n a" . copilot-accept-completion)))
 
 (use-package lsp-bridge
   :commands lsp-bridge-mode
-  :load-path "/Users/zhangwei/code/z/lsp-bridge"
+  :load-path "~/code/el/lsp-bridge"
   :ensure nil
   :bind
   (:map lsp-bridge-mode-map
@@ -133,10 +129,13 @@
 
 
 (use-package rust-mode
-  :init
-  :config
-  (with-eval-after-load 'lsp-mode
-    (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))))
+  ;; :config
+  ;; (use-package reformatter
+  ;;   :config
+  ;;   (reformatter-define rust-formatter
+  ;;     :program "cargo"
+  ;;     :args '("fmt" "--" "--emit" "stdout")))
+  )
 
 (use-package lua-mode
   :mode
