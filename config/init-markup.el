@@ -24,6 +24,33 @@
 
 (use-package graphql-mode)
 
+(use-package obsidian
+  :demand t
+  :init
+  (global-unset-key (kbd "M-k"))
+  :config
+  (obsidian-specify-path "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Papers")
+  (global-obsidian-mode t)
+  (bind-key (kbd "C-c M-o") 'obsidian-hydra/body 'obsidian-mode-map)
+
+  :custom
+  ;; This directory will be used for `obsidian-capture' if set.
+  (obsidian-inbox-directory "clip")
+
+  :bind
+  ("M-k o" . obsidian-jump)
+  ("M-k i" . obsidian-capture)
+  ("M-k s" . obsidian-search)
+  (:map obsidian-mode-map
+        ;; Replace C-c C-o with Obsidian.el's implementation. It's ok to use another key binding.
+        ("C-c C-o" . obsidian-follow-link-at-point)
+        ;; Jump to backLinks
+        ("C-c C-b" . obsidian-backlink-jump)
+        ;; If you prefer you can use `obsidian-insert-link'
+        ("C-c C-l" . obsidian-insert-wikilink)
+        )
+  )
+
 (use-package json-mode
   :custom
   (js-indent-level 2))
