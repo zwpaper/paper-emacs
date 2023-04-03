@@ -27,7 +27,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (require 'use-package))
   (setq use-package-always-ensure t)
 
-  (use-package use-package-ensure-system-package)
+  (add-to-list 'load-path "~/.emacs.d/config")
 #+end_src
 
 
@@ -87,8 +87,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (setq column-number-mode t)
     (setq-default tab-width 4)
     (add-to-list 'exec-path "/usr/local/bin")
-    (add-to-list 'load-path "~/.emacs.d/plugin")
-    (add-to-list 'load-path "~/.emacs.d/config")
     (setq ispell-program-name "aspell"
           ;; force the English dictionary, support Camel Case spelling check (tested with aspell 0.6)
           ispell-extra-args '("--sug-mode=ultra" "--lang=en_US" "--camel-case"))
@@ -209,6 +207,11 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
 **** White spaces
 #+begin_src emacs-lisp
+  (use-package mind-wave
+    :ensure nil
+    :load-path "~/code/z/mind-wave")
+
+
   (use-package jieba
     :ensure nil
     :load-path "~/code/z/jieba.el"
@@ -307,7 +310,8 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (use-package aggressive-indent
     :config
     (global-aggressive-indent-mode 1)
-    (add-to-list 'aggressive-indent-excluded-modes 'go-mode))
+    (add-to-list 'aggressive-indent-excluded-modes 'go-mode)
+    (add-to-list 'aggressive-indent-excluded-modes 'rust-mode))
 
   ;; (use-package rainbow-delimiters
   ;;   :hook

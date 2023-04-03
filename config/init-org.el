@@ -9,17 +9,17 @@
 (require 'init-const)
 
 (use-package org
-  :pin org
-  :ensure org-plus-contrib
-  :bind (("C-M-f" . org-do-demote)
-         ("C-M-b" . org-do-promote)
-         ("C-M-p" . org-move-subtree-up)
-         ("C-M-n" . org-move-subtree-down)
-         ("C-M-<return>" . org-insert-todo-subheading)
-         ("C-c i" . org-insert-image))
+  :defer t
+  :bind (:map org-mode-map
+              ("C-M-f" . org-do-demote)
+              ("C-M-b" . org-do-promote)
+              ("C-M-p" . org-move-subtree-up)
+              ("C-M-n" . org-move-subtree-down)
+              ("C-M-<return>" . org-insert-todo-subheading)
+              ("C-c i" . org-insert-image))
   :config
   (setq org-log-done t)
-  (setq org-agenda-files (list (concat org-path "/tasks")))
+  ;; (setq org-agenda-files (list (concat org-path "/tasks")))
   (setq org-image-actual-width '(600))
 
   ;;; set org agenda prefix to project name

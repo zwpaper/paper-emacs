@@ -40,30 +40,54 @@
   (use-package markdown-mode)
   (use-package posframe)
 
+  :hook
+  (prog-mode . lsp-bridge-mode)
+
   :config
   (local-unset-key (kbd "M-,"))
   (local-unset-key (kbd "M-."))
   (setq lsp-bridge-enable-auto-format-code t)
   (setq lsp-bridge-auto-format-code-idle 3)
+  (setq markdown-enable-highlighting-syntax t)
 
   (require 'cl-lib)
-  (setq lsp-bridge-get-project-path-by-filepath
-        (lambda (path)
-          (cl-dolist (project
-                      '("/Users/zhangwei/code/golang/src/gitlab.bj.sensetime.com/diamond/service-providers/redis/redis-operator"
-                        "/Users/zhangwei/code/sensetime/sp/mysql/service-broker"))
-            (if (string-prefix-p project path)
-                (cl-return project)
-              nil))))
-
   ;; (use-package format-all
   ;;   :config
   ;;   (add-hook 'prog-mode-hook 'format-all-mode)
   ;;   :bind
   ;;   (:map lsp-bridge-mode-map ;; no format-all-mode-map, use lsp bridge
   ;;         ("M-n f" . format-all-buffer)))
+  )
 
-  (global-lsp-bridge-mode))
+(when (treesit-available-p)
+  (require 'treesit)
+  (global-set-key (kbd "C-M-a") 'treesit-beginning-of-defun)
+  (global-set-key (kbd "C-M-e") 'treesit-end-of-defun)
+
+  (setq major-mode-remap-alist
+        '((c-mode          . c-ts-mode)
+          (c++-mode        . c++-ts-mode)
+          (conf-toml-mode  . toml-ts-mode)
+          (csharp-mode     . csharp-ts-mode)
+          (css-mode        . css-ts-mode)
+          (go-mode       . go-ts-mode)
+          (go-mod-mode       . go-mod-ts-mode)
+          (java-mode       . java-ts-mode)
+          (js-mode         . js-ts-mode)
+          (json-mode         . json-ts-mode)
+          (javascript-mode . js-ts-mode)
+          (js-json-mode    . json-ts-mode)
+          (python-mode     . python-ts-mode)
+          (ruby-mode       . ruby-ts-mode)
+          (rust-mode       . rust-ts-mode)
+          (sh-mode         . bash-ts-mode)
+          (yaml-mode         . yaml-ts-mode)))
+
+  (defun kw-go-ts-mode-setup ())
+                                        ;(setq-local treesit-defun-type-regexp "\\(method\\|function\\)_declaration"))
+  (add-hook 'go-ts-mode-hook #'kw-go-ts-mode-setup)
+  )
+
 
 (use-package dash-at-point
   :load-path "plugin/dash-at-point"
