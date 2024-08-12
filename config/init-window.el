@@ -68,6 +68,10 @@
 
 ;; Quickly switch windows
 (use-package ace-window
+  :init
+  (use-package major-mode-hydra
+    :ensure t
+    )
   :preface
   (defun toggle-window-split ()
     (interactive)
@@ -93,33 +97,6 @@
             (set-window-buffer (next-window) next-win-buffer)
             (select-window first-win)
             (if this-win-2nd (other-window 1))))))
-  :pretty-hydra
-  ((:title (pretty-hydra-title "Window Management" 'faicon "windows")
-           :foreign-keys warn :quit-key "q")
-   ("Actions"
-    (("TAB" other-window "switch")
-     ("x" ace-delete-window "delete" :exit t)
-     ("m" ace-delete-other-windows "maximize" :exit t)
-     ("s" ace-swap-window "swap" :exit t)
-     ("a" ace-select-window "select" :exit t)
-     ("f" toggle-frame-fullscreen "fullscreen" :exit t))
-    "Resize"
-    (("h" shrink-window-horizontally "←")
-     ("j" enlarge-window "↓")
-     ("k" shrink-window "↑")
-     ("l" enlarge-window-horizontally "→")
-     ("n" balance-windows "balance"))
-    "Split"
-    (("b" split-window-right "horizontally")
-     ("B" split-window-horizontally-instead "horizontally instead")
-     ("v" split-window-below "vertically")
-     ("V" split-window-vertically-instead "vertically instead")
-     ("t" toggle-window-split "toggle"))
-    "Zoom"
-    (("+" text-scale-increase "in")
-     ("=" text-scale-increase "in")
-     ("-" text-scale-decrease "out")
-     ("0" (text-scale-increase 0) "reset"))))
   :custom-face
   (aw-leading-char-face ((t (:inherit font-lock-keyword-face :bold t :height 3.0))))
   (aw-mode-line-face ((t (:inherit mode-line-emphasis :bold t))))
@@ -129,6 +106,36 @@
   :config
   ;; Bind hydra to dispatch list
   (add-to-list 'aw-dispatch-alist '(?w ace-window-hydra/body) t)
+
+  (defun with-faicon (icon str &optional height v-adjust)
+    (s-concat (all-the-icons-faicon icon :v-adjust (or v-adjust 0) :height (or height 1)) " " str))
+  (defvar window-management--title (with-faicon "windows" "WindowManagement" 1 -0.05))
+  (pretty-hydra-define window-management
+    (:title window-management--title :foreign-keys warn :quit-key "q")
+    ("Actions"
+     (("TAB" other-window "switch")
+      ("x" ace-delete-window "delete" :exit t)
+      ("m" ace-delete-other-windows "maximize" :exit t)
+      ("s" ace-swap-window "swap" :exit t)
+      ("a" ace-select-window "select" :exit t)
+      ("f" toggle-frame-fullscreen "fullscreen" :exit t))
+     "Resize"
+     (("h" shrink-window-horizontally "←")
+      ("j" enlarge-window "↓")
+      ("k" shrink-window "↑")
+      ("l" enlarge-window-horizontally "→")
+      ("n" balance-windows "balance"))
+     "Split"
+     (("b" split-window-right "horizontally")
+      ("B" split-window-horizontally-instead "horizontally instead")
+      ("v" split-window-below "vertically")
+      ("V" split-window-vertically-instead "vertically instead")
+      ("t" toggle-window-split "toggle"))
+     "Zoom"
+     (("+" text-scale-increase "in")
+      ("=" text-scale-increase "in")
+      ("-" text-scale-decrease "out")
+      ("0" (text-scale-increase 0) "reset"))))
 
   ;; Select widnow via `M-1'...`M-9'
   (defun aw--select-window (number)

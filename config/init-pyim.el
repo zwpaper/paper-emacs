@@ -7,19 +7,25 @@
 (use-package rime
   :ensure t
   :init
-  (setq rime-user-data-dir "~/.emacs.d/rime/")
-  (setq rime-share-data-dir "~/Dropbox/AppSync/Rime")
+  (setq rime-user-data-dir "/Users/zhangwei/.emacs.d/rime/")
+  (setq rime-share-data-dir "~/Library/Rime")
   (setq default-input-method "rime"
         rime-show-candidate 'posframe)
   (setq rime-disable-predicates
-        '(rime-predicate-evil-mode-p
+        '(rime-predicate-hydra-p
+          rime-predicate-in-code-string-p
+          rime-predicate-ace-window-p
           rime-predicate-after-alphabet-char-p
+          rime-predicate-current-uppercase-letter-p
+          rime-predicate-punctuation-after-ascii-p
+          rime-predicate-punctuation-line-begin-p
           rime-predicate-prog-in-code-p))
+  (setq rime-posframe-fixed-position t)
 
   (defun +rime-force-enable ()
     "强制 `rime' 使用中文输入状态。
-  如果当前不是 `rime' 输入法，则先激活 `rime' 输入法。如果当前是
-  `evil' 的非编辑状态，则转为 `evil-insert-state'。"
+如果当前不是 `rime' 输入法，则先激活 `rime' 输入法。如果当前是
+`evil' 的非编辑状态，则转为 `evil-insert-state'。"
     (interactive)
     (let ((input-method "rime"))
       (unless (string= current-input-method input-method)
@@ -57,12 +63,26 @@
                              unread-command-events))))
             (t (message "`+rime-convert-string-at-point' did nothing.")))))
 
+  ;; change cursor color based on input method
+  (defvar input-method-cursor-color "Orange"
+    "Default cursor color if using an input method.")
+  (defvar default-cursor-color (frame-parameter nil 'cursor-color)
+    "Default text cursor color.")
+  :config
+  (defun change-cursor-color-on-input-method ()
+    "Set cursor color depending on whether an input method is used or not."
+    (interactive)
+    (set-cursor-color (if (and (rime--should-enable-p)
+                               (not (rime--should-inline-ascii-p))
+                               current-input-method)
+                          input-method-cursor-color
+                        default-cursor-color)))
+  (add-hook 'post-command-hook 'change-cursor-color-on-input-method)
   :custom
   (rime-librime-root "~/.emacs.d/plugin/librime/dist")
   :bind
   ("M-j" . #'+rime-convert-string-at-point)
   (:map rime-mode-map
-        ("M-j" . #'rime-inline-ascii)
         ("C-`" . rime-send-keybinding)))
 
 

@@ -55,39 +55,55 @@
       (message image-file))
     (org-display-inline-images))
 
+  ;; Custom commands
+  ;;; https://orgmode.org/worg/org-tutorials/org-custom-agenda-commands.html
+  (setq org-agenda-custom-commands
+        '(("o" "At the office" tags-todo "#office"
+           ((org-agenda-overriding-header "#office"))
+           (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first))
+          ("j" "Job, work tasks" tags-todo "+CATEGORY=\"Work\"+todo=\"TODO\""
+           ((org-agenda-overriding-header "Work"))
+           (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first))
+          ("h" "At the home" tags-todo "#home"
+           ((org-agenda-overriding-header "home")))
+          ("p" "Priority" tags-todo "+PRIORITY=\"A\"")
+          ("w" "Waitting" todo "WAITING")
+          ("n" "Next" todo "NEXT")
+          ("r" . "Review")
+          ("ry" "Closed Yesterday"
+           tags (concat "+TODO=\"DONE\""
+                        "+CLOSED>=\""
+                        (format-time-string "[%Y-%m-%d]" (time-subtract (current-time) (days-to-time 1)))
+                        "\""))
+          ("rw" "Get Current: Review Previous Week"
+           ((agenda "" ((org-agenda-start-day (concat "-" (number-to-string (+ 13 (nth 6 (decode-time)))) "d"))
+                        (org-agenda-span (+ 14 (nth 6 (decode-time))))
+                        (org-agenda-repeating-timestamp-show-all t)
+                        (org-agenda-entry-types '(:deadline :timestamp :sexp)) ; show due tasks, meetings
+                        (org-agenda-show-log t)
+                        (org-agenda-prefix-format "%-12t% s"))))
+           )))
 
   :hook
   (org-mode . (lambda () (org-display-inline-images t)))
   (org-mode . (lambda () (add-hook 'before-save-hook 'org-redisplay-inline-images nil 'local))))
 
-;; Custom commands
-;;; https://orgmode.org/worg/org-tutorials/org-custom-agenda-commands.html
-(setq org-agenda-custom-commands
-      '(("o" "At the office" tags-todo "#office"
-         ((org-agenda-overriding-header "#office"))
-         (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first))
-        ("j" "Job, work tasks" tags-todo "+CATEGORY=\"Work\"+todo=\"TODO\""
-         ((org-agenda-overriding-header "Work"))
-         (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first))
-        ("h" "At the home" tags-todo "#home"
-         ((org-agenda-overriding-header "home")))
-        ("p" "Priority" tags-todo "+PRIORITY=\"A\"")
-        ("w" "Waitting" todo "WAITING")
-        ("n" "Next" todo "NEXT")
-        ("r" . "Review")
-        ("ry" "Closed Yesterday"
-         tags (concat "+TODO=\"DONE\""
-                      "+CLOSED>=\""
-                      (format-time-string "[%Y-%m-%d]" (time-subtract (current-time) (days-to-time 1)))
-                      "\""))
-        ("rw" "Get Current: Review Previous Week"
-         ((agenda "" ((org-agenda-start-day (concat "-" (number-to-string (+ 13 (nth 6 (decode-time)))) "d"))
-                      (org-agenda-span (+ 14 (nth 6 (decode-time))))
-                      (org-agenda-repeating-timestamp-show-all t)
-                      (org-agenda-entry-types '(:deadline :timestamp :sexp)) ; show due tasks, meetings
-                      (org-agenda-show-log t)
-                      (org-agenda-prefix-format "%-12t% s"))))
-         )))
+
+(defun zjournal-filename ()
+  (org-path-concat "journal"
+                   (concat (format-time-string "%Y-%m")
+                           ".org")))
+(defun zjournal-open ()
+  (interactive)
+  (switch-to-buffer (find-file-noselect (zjournal-filename))))
+
+(defun zjournal-template ()
+  (interactive)
+  (switch-to-buffer (find-file-noselect "/Users/zhangwei/.emacs.d/snippets/org-mode/journal")))
+
+(global-set-key (kbd "C-x j o") 'zjournal-open)
+(global-set-key (kbd "C-x j t") 'zjournal-template)
+
 
 (defun my-org-agenda-skip-all-siblings-but-first ()
   "Skip all but the first non-done entry."
@@ -125,58 +141,70 @@
   :ensure nil)
 (use-package org-capture
   :ensure nil
+  :init
+  (defun get-journal-file-this-month ()
+    "Return filename for today's journal entry."
+    (let ((daily-name (format-time-string "%Y-%m")))
+      (expand-file-name (concat org-path "/" daily-name ".org"))))
   :config
-  (global-set-key (kbd "C-c c") 'org-capture))
-
-;;;; Tamplates
-(add-to-list 'org-capture-templates
-             '("b" "Book Reading Task" entry
-               (file+headline (concat org-path "/tasks/readList.org") "inbox")
-               "* TODO %^{Book Name}\n%u\n%a\n" :clock-in t :clock-resume t))
-(add-to-list 'org-capture-templates
-             '("w" "Work Task" entry
-               (file+headline (concat org-path "/tasks/inbox.org") "Work")
-               "* TODO %^{Task Name}\n%u\n%a\n" :clock-in t :clock-resume t))
-(add-to-list 'org-capture-templates
-             '("t" "Personal Task" entry
-               (file+headline (concat org-path "/tasks/inbox.org") "Personal")
-               "* TODO %^{Task Name}\n%u\n%a\n" :clock-in t :clock-resume t))
-(add-to-list 'org-capture-templates
-             '("n" "Notes" entry
-               (file+headline (concat org-path "/tasks/inbox.org") "Notes")
-               "* %^{heading} %t %^g\n  %?\n"))
-
+  (defun get-journal-file-this-month ()
+    "Return filename for today's journal entry."
+    (let ((daily-name (format-time-string "%Y-%m")))
+      (expand-file-name (concat org-path "/" daily-name ".org"))))
+;;;; Templates
+  (setq org-capture-templates '(("b" "Book Reading Task" entry
+                                 (file+headline (lambda () (org-path-concat "tasks" "readList.org"))
+                                                "inbox")
+                                 "* TODO %^{Book Name}\n%u\n%a\n" :clock-in t :clock-resume t)
+                                ("w" "Work Task" entry
+                                 (file+headline (lambda () (org-path-concat "tasks" "inbox.org"))
+                                                "Work")
+                                 "* TODO %^{Task Name}\n%u\n%a\n" :clock-in t :clock-resume t)
+                                ("t" "Personal Task" entry
+                                 (file+headline (lambda () (org-path-concat "tasks" "inbox.org"))
+                                                "Personal")
+                                 "* TODO %^{Task Name}\n%u\n%a\n" :clock-in t :clock-resume t)
+                                ("n" "Notes" entry
+                                 (file+headline (lambda () (org-path-concat "tasks" "inbox.org"))
+                                                "Notes")
+                                 "* %^{heading} %t %^g\n  %?\n")
+                                ("j" "Journal Note" entry
+                                 (file+olp+datetree
+                                  (lambda () (zjournal-filename)))
+                                 "* %T %?\n  %i\n  From: %a" :empty-lines 1 :prepend t)
 ;;;; org protocol capture from outside Emacs
 ;;;; Should be update later
-(add-to-list 'org-capture-templates
-             '("l" "Notes with link" plain
-               (file+function (concat org-path "/notes/inbox.org") org-capture-template-goto-link)
-               "  %U - %?\n\n  %:initial" :empty-lines 1))
-(defun org-capture-template-goto-link ()
-  (org-capture-put :target (list 'file+headline
-                                 (nth 1 (org-capture-get :target))
-                                 (org-capture-get :annotation)))
-  (org-capture-put-target-region-and-position)
-  (widen)
-  (let ((hd (nth 2 (org-capture-get :target))))
-    (goto-char (point-min))
-    (if (re-search-forward
-         (format org-complex-heading-regexp-format (regexp-quote hd)) nil t)
-        (org-end-of-subtree)
-      (goto-char (point-max))
-      (or (bolp) (insert "\n"))
-      (insert "* " hd "\n"))))
+                                ("l" "Notes with link" plain
+                                 (file+function (lambda () (org-path-concat "notes" "inbox.org"))
+                                                org-capture-template-goto-link)
+                                 "  %U - %?\n\n  %:initial" :empty-lines 1)))
+  (defun org-capture-template-goto-link ()
+    (org-capture-put :target (list 'file+headline
+                                   (nth 1 (org-capture-get :target))
+                                   (org-capture-get :annotation)))
+    (org-capture-put-target-region-and-position)
+    (widen)
+    (let ((hd (nth 2 (org-capture-get :target))))
+      (goto-char (point-min))
+      (if (re-search-forward
+           (format org-complex-heading-regexp-format (regexp-quote hd)) nil t)
+          (org-end-of-subtree)
+        (goto-char (point-max))
+        (or (bolp) (insert "\n"))
+        (insert "* " hd "\n"))))
 
-(defun make-orgcapture-frame ()
-  "Create a new frame and run org-capture."
-  (interactive)
-  (make-frame '((name . "remember") (width . 80) (height . 16)
-                (top . 400) (left . 300)
-                (font . "-apple-Monaco-medium-normal-normal-*-13-*-*-*-m-0-iso10646-1")
-                ))
-  (select-frame-by-name "remember")
-  (org-capture))
+  (defun make-orgcapture-frame ()
+    "Create a new frame and run org-capture."
+    (interactive)
+    (make-frame '((name . "remember") (width . 80) (height . 16)
+                  (top . 400) (left . 300)
+                  (font . "-apple-Monaco-medium-normal-normal-*-13-*-*-*-m-0-iso10646-1")
+                  ))
+    (select-frame-by-name "remember")
+    (org-capture))
 ;;;; End capture from outside Emacs
+  (global-set-key (kbd "C-c c") 'org-capture))
+
 
 ;;; GTD
 (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")

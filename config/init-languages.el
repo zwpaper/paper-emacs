@@ -39,18 +39,21 @@
   :init
   (use-package markdown-mode)
   (use-package posframe)
+  (setq lsp-bridge-enable-mode-line nil)
 
   :hook
   (prog-mode . lsp-bridge-mode)
 
   :config
+  (setq lsp-bridge-enable-mode-line nil)
   (local-unset-key (kbd "M-,"))
   (local-unset-key (kbd "M-."))
   (setq lsp-bridge-enable-auto-format-code t)
   (setq lsp-bridge-auto-format-code-idle 3)
   (setq markdown-enable-highlighting-syntax t)
+  (setq acm-enable-codeium t)
+  (setq acm-enable-copilot t)
 
-  (require 'cl-lib)
   ;; (use-package format-all
   ;;   :config
   ;;   (add-hook 'prog-mode-hook 'format-all-mode)
@@ -83,10 +86,70 @@
           (sh-mode         . bash-ts-mode)
           (yaml-mode         . yaml-ts-mode)))
 
-  (defun kw-go-ts-mode-setup ())
-                                        ;(setq-local treesit-defun-type-regexp "\\(method\\|function\\)_declaration"))
-  (add-hook 'go-ts-mode-hook #'kw-go-ts-mode-setup)
+  (defun show-current-function-name ()
+    "Show the current function name in the message area."
+    (interactive)
+    (let ((node (treesit-node-at (point)))
+          (branch nil)
+          (struct-name-node nil)
+          (function-node nil)
+          (function-name-node nil)
+          (args-node nil)
+          (return-type-node nil))
+      (while node
+        (push (treesit-node-type node) branch)
+        (if (member (treesit-node-type node) '("function" "function_declaration" "defun" "method" "method_declaration"))
+            (setq function-node node
+                  node nil)
+          (setq node (treesit-node-parent node))))
+      (when function-node
+        ;; Assuming the function name is a direct child of the function node
+        (setq function-name-node (treesit-node-child-by-field-name function-node "name"))
+        (setq args-node (treesit-node-child-by-field-name function-node "parameters"))
+        (setq return-type-node (treesit-node-child-by-field-name function-node "return_type")))
+
+      (if function-name-node
+          (message "Function: %s(%s) -> %s"
+                   (treesit-node-text function-name-node)
+                   (if args-node (treesit-node-text args-node) "")
+                   (if return-type-node (treesit-node-text return-type-node) ""))
+        (message "Tree branch: %s" (mapconcat 'identity (reverse branch) " -> ")))))
+
+  (global-set-key (kbd "M-n f") 'show-current-function-name)
+
+  (use-package treesit-fold
+    :ensure nil
+    :load-path "~/code/z/treesit-fold"
+    :init
+    (treesit-fold-mode)
+    :hook
+    (go-ts-mode . treesit-fold-mode)
+    (yaml-ts-mode . treesit-fold-mode)
+    (rust-ts-mode . treesit-fold-mode)
+    (json-ts-mode . treesit-fold-mode)
+    :bind
+    ("M-m t" . treesit-fold-toggle)
+    ("M-m c" . treesit-fold-close)
+    ("M-m a" . treesit-fold-open)
+    )
   )
+
+;; (use-package tree-sitter
+;;   :config
+;;   (use-package tree-sitter-langs)
+;;   (use-package ts-fold
+;;     :ensure nil
+;;     :load-path "~/code/z/ts-fold"
+;;     :config
+;;     (advice-add 'line-reminder-transfer-to-saved-lines :after
+;;                 ;; Refresh indicators for package `ts-fold'.
+;;                 #'ts-fold-indicators-refresh)
+;;     :bind
+;;     (:map ts-fold-mode
+;;           ("M-n f" . ts-fold-toggle)
+;;           ("M-n c" . ts-fold-close)
+;;           ("M-n a" . ts-fold-open))
+;;     ))
 
 
 (use-package dash-at-point
@@ -151,6 +214,12 @@
 ;; built-in support sh-mode
 ;; (use-package sh-mode)
 
+;; Install yaml-mode
+(use-package yaml-mode)
+
+;; Create a derived major-mode based on yaml-mode
+(define-derived-mode helm-mode yaml-mode "helm"
+  "Major mode for editing kubernetes helm templates")
 
 (use-package rust-mode
   ;; :config

@@ -40,16 +40,19 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (setq file-name-handler-alist nil)
   (setq gc-cons-threshold 80000000)
   (add-hook 'emacs-startup-hook
-         (lambda ()
-       "Restore defalut values after init."
-       (setq file-name-handler-alist default-file-name-handler-alist)
-       (setq gc-cons-threshold 800000)
-       (if (boundp 'after-focus-change-function)
-           (add-function :after after-focus-change-function
-                 (lambda ()
-                   (unless (frame-focus-state)
-                     (garbage-collect))))
-         (add-hook 'focus-out-hook 'garbage-collect))))
+            (lambda ()
+              "Restore defalut values after init."
+              (setq file-name-handler-alist default-file-name-handler-alist)
+              (setq gc-cons-threshold 800000)
+              (if (boundp 'after-focus-change-function)
+                  (add-function :after after-focus-change-function
+                                (lambda ()
+                                  (unless (frame-focus-state)
+                                    (garbage-collect))))
+                (add-hook 'focus-out-hook 'garbage-collect))))
+
+  (setq confirm-kill-emacs
+        (lambda (prompt) (y-or-n-p-with-timeout "Whether to quit Emacs:" 10 "y")))
 
   ;; Start up dashboard
   (use-package dashboard
@@ -61,45 +64,14 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (setq dashboard-items '((recents  . 10)
                             (bookmarks . 10)))
     (dashboard-setup-startup-hook))
-#+END_SRC
-
-** Package
-
-   Download some packages from Internet
-
-#+begin_src emacs-lisp
-    (setq manual-pakages
-          '(
-            "https://raw.githubusercontent.com/manateelazycat/awesome-pair/master/awesome-pair.el"
-            "https://raw.githubusercontent.com/manateelazycat/thing-edit/master/thing-edit.el"
-            "https://raw.githubusercontent.com/joaotavora/autopair/master/autopair.el"
-            "https://raw.githubusercontent.com/zk-phi/indent-guide/master/indent-guide.el"
-            "https://raw.githubusercontent.com/beancount/beancount/master/editors/emacs/beancount.el"))
-
-  ;  (while manual-pakages
-  ;    (url-copy-file (car manual-pakages)
-  ;                   (concat "~/.emacs.d/plugin/" (car (last (split-string (car manual-pakages) "/"))))
-  ;                   t)
-  ;    (setq manual-pakages (cdr manual-pakages)))
-
-    ;;; Vars
-    (setq-default indent-tabs-mode nil)
-    (setq column-number-mode t)
-    (setq-default tab-width 4)
-    (add-to-list 'exec-path "/usr/local/bin")
-    (setq ispell-program-name "aspell"
-          ;; force the English dictionary, support Camel Case spelling check (tested with aspell 0.6)
-          ispell-extra-args '("--sug-mode=ultra" "--lang=en_US" "--camel-case"))
 #+end_src
 
 
 *** General
 
 #+begin_src emacs-lisp
-  (setq-default buffer-file-coding-system 'utf-8-unix)
-  (setq confirm-kill-emacs
-      (lambda (prompt) (y-or-n-p-with-timeout "Whether to quit Emacs:" 10 "y")))
   (when (eq system-type 'darwin)
+    ;; this only need for GUI Emacs
     (use-package exec-path-from-shell
       :config
       (exec-path-from-shell-initialize)
@@ -112,7 +84,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
   (defun draft-work-buffer()
     (interactive)
-    (find-file (expand-file-name "~/OneDrive/org-mode/work/draft.org"))
+    (find-file (expand-file-name "~/OneDrive/org-mode/work/sensetime/draft.org"))
     (goto-char (point-max)))
 #+end_src
 
@@ -142,19 +114,16 @@ Because some packages need fully reload, It may need several restarting Emacs.
      ("C-w C-b" . thing-cut-whole-buffer)
      ("M-w M-b" . thing-copy-whole-buffer)))
 
-  (use-package grammatical-edit
-    :load-path "plugin/grammatical-edit"
+  (use-package fingertip
+    :load-path "~/code/z/fingertip"
     :ensure nil
     :config
     (dolist (hook (list
-                   'c-mode-common-hook
-                   'c-mode-hook
-                   'c++-mode-hook
+                   'c-ts-mode-common-hook
+                   'c-ts-mode-hook
+                   'c++-ts-mode-hook
                    'java-mode-hook
                    'haskell-mode-hook
-                   'emacs-lisp-mode-hook
-                   'lisp-interaction-mode-hook
-                   'lisp-mode-hook
                    'maxima-mode-hook
                    'ielm-mode-hook
                    'sh-mode-hook
@@ -162,55 +131,57 @@ Because some packages need fully reload, It may need several restarting Emacs.
                    'php-mode-hook
                    'python-mode-hook
                    'js-mode-hook
-                   'go-mode-hook
+                   'go-ts-mode-hook
                    'qml-mode-hook
                    'jade-mode-hook
                    'css-mode-hook
                    'ruby-mode-hook
                    'coffee-mode-hook
-                   'rust-mode-hook
+                   'rust-ts-mode-hook
                    'qmake-mode-hook
                    'lua-mode-hook
                    'swift-mode-hook
                    'minibuffer-inactive-mode-hook
                    'typescript-mode-hook
                    ))
-      (add-hook hook '(lambda () (grammatical-edit-mode 1))))
-    (define-key grammatical-edit-mode-map (kbd "(") 'grammatical-edit-open-round)
-    (define-key grammatical-edit-mode-map (kbd "[") 'grammatical-edit-open-bracket)
-    (define-key grammatical-edit-mode-map (kbd "{") 'grammatical-edit-open-curly)
-    (define-key grammatical-edit-mode-map (kbd ")") 'grammatical-edit-close-round)
-    (define-key grammatical-edit-mode-map (kbd "]") 'grammatical-edit-close-bracket)
-    (define-key grammatical-edit-mode-map (kbd "}") 'grammatical-edit-close-curly)
-    (define-key grammatical-edit-mode-map (kbd "=") 'grammatical-edit-equal)
+      (add-hook hook #'(lambda () (fingertip-mode 1))))
+    (define-key fingertip-mode-map (kbd "(") 'fingertip-open-round)
+    (define-key fingertip-mode-map (kbd "[") 'fingertip-open-bracket)
+    (define-key fingertip-mode-map (kbd "{") 'fingertip-open-curly)
+    (define-key fingertip-mode-map (kbd ")") 'fingertip-close-round)
+    (define-key fingertip-mode-map (kbd "]") 'fingertip-close-bracket)
+    (define-key fingertip-mode-map (kbd "}") 'fingertip-close-curly)
+    (define-key fingertip-mode-map (kbd "=") 'fingertip-equal)
 
-    (define-key grammatical-edit-mode-map (kbd "%") 'grammatical-edit-match-paren)
-    (define-key grammatical-edit-mode-map (kbd "\"") 'grammatical-edit-double-quote)
-    (define-key grammatical-edit-mode-map (kbd "'") 'grammatical-edit-single-quote)
+    (define-key fingertip-mode-map (kbd "%") 'fingertip-match-paren)
+    (define-key fingertip-mode-map (kbd "\"") 'fingertip-double-quote)
+    (define-key fingertip-mode-map (kbd "'") 'fingertip-single-quote)
 
-    (define-key grammatical-edit-mode-map (kbd "SPC") 'grammatical-edit-space)
-    (define-key grammatical-edit-mode-map (kbd "RET") 'grammatical-edit-newline)
+    (define-key fingertip-mode-map (kbd "SPC") 'fingertip-space)
+    (define-key fingertip-mode-map (kbd "RET") 'fingertip-newline)
 
-    (define-key grammatical-edit-mode-map (kbd "M-o") 'grammatical-edit-backward-delete)
-    (define-key grammatical-edit-mode-map (kbd "C-k") 'grammatical-edit-kill)
+    (define-key fingertip-mode-map (kbd "M-o") 'fingertip-backward-delete)
+    (define-key fingertip-mode-map (kbd "C-d") 'fingertip-forward-delete)
+    (define-key fingertip-mode-map (kbd "C-k") 'fingertip-kill)
 
-    (define-key grammatical-edit-mode-map (kbd "M-\"") 'grammatical-edit-wrap-double-quote)
-    (define-key grammatical-edit-mode-map (kbd "M-'") 'grammatical-edit-wrap-single-quote)
-    (define-key grammatical-edit-mode-map (kbd "M-[") 'grammatical-edit-wrap-bracket)
-    (define-key grammatical-edit-mode-map (kbd "M-{") 'grammatical-edit-wrap-curly)
-    (define-key grammatical-edit-mode-map (kbd "M-(") 'grammatical-edit-wrap-round)
-    (define-key grammatical-edit-mode-map (kbd "M-)") 'grammatical-edit-unwrap)
+    (define-key fingertip-mode-map (kbd "M-\"") 'fingertip-wrap-double-quote)
+    (define-key fingertip-mode-map (kbd "M-'") 'fingertip-wrap-single-quote)
+    (define-key fingertip-mode-map (kbd "M-[") 'fingertip-wrap-bracket)
+    (define-key fingertip-mode-map (kbd "M-{") 'fingertip-wrap-curly)
+    (define-key fingertip-mode-map (kbd "M-(") 'fingertip-wrap-round)
+    (define-key fingertip-mode-map (kbd "M-)") 'fingertip-unwrap)
 
-    (define-key grammatical-edit-mode-map (kbd "M-p") 'grammatical-edit-jump-right)
-    (define-key grammatical-edit-mode-map (kbd "M-n") 'grammatical-edit-jump-left))
+    (define-key fingertip-mode-map (kbd "C-j") 'fingertip-jump-up))
 #+end_src
 
 **** White spaces
 #+begin_src emacs-lisp
-  (use-package mind-wave
-    :ensure nil
-    :load-path "~/code/z/mind-wave")
-
+                                          ; (use-package mind-wave
+                                          ;   :ensure nil
+                                          ;   :load-path "~/code/z/mind-wave"
+                                          ;   :bind
+                                          ;   ("M-e" . mind-wave-chat-ask))
+                                          ;
 
   (use-package jieba
     :ensure nil
@@ -219,99 +190,12 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :config
     (jieba-mode))
 
-  (defun moon-hungry-delete ()
-    "Smart and clean delete.
-  If we are at the beginning of a line, backspace
-  deletes all whitespace before and after point
-  and moves point to the previous line."
-    (interactive)
-    (if (or (region-active-p)
-            (<= (car (syntax-ppss)) 0))
-        (if (member (char-before) '(?{ ?\[ ?\())
-            (call-interactively #'electric-pair-delete-pair)
-          (call-interactively #'backward-delete-char-untabify))
-      ;; case1: closing delimiter after point:
-      ;;        delete all excess white space and new line
-      ;;        before and after point
-      ;;        add newline and indent if is }
-      ;; case2: other stuff after point:
-      ;;        remove empty lines and indent
-      (let* ((point (point))
-             (bolt (save-excursion
-                     ;; `beginning-of-line-text' seems to ignore comment for some reason,
-                     (beginning-of-line)
-                     (skip-chars-forward " \t")
-                     (point)))
-             ;; beginning of the region that we are to delete
-             (beg (save-excursion (while (member (char-before) '(?\n ?\s ?\t))
-                                    (backward-char))
-                                  (point)))
-             ;; end of that region
-             (end (save-excursion (goto-char bolt)
-                                  (while (member (char-after) '(?\n ?\s ?\t))
-                                    (forward-char))
-                                  (point))))
-        (if (<= point bolt)
-            ;; actually decide to delete stuff
-            (progn
-              (delete-region beg end)
-              (unless (eql (char-after) ?\))
-                (call-interactively #'newline))
-              ;; so we did all this and ends up not changing anything
-              ;; why? because the user doesn't want to delete excess white space,
-              ;; but to delete back to previous line! do that.
-              (when (eql (point) end)
-                (delete-region beg end)
-                (insert ?\s)))
-          ;; not at beginning of text, just do normal delete
-          (if (member (char-before) '(?{ ?\[ ?\())
-              (call-interactively #'electric-pair-delete-pair)
-            (call-interactively #'backward-delete-char-untabify))))))
-
-  (global-set-key (kbd "<C-backspace>") (lambda ()
-                                          (interactive)
-                                          (moon-hungry-delete)))
-
-  ;; Visualize TAB, (HARD) SPACE, NEWLINE
-  (use-package whitespace
-    :ensure nil
-    :diminish
-    :hook
-    ((prog-mode outline-mode conf-mode) . whitespace-mode)
-    (markdown-mode . whitespace-mode)
-    (yaml-mode . whitespace-mode)
-    :config
-    (setq whitespace-line-column fill-column) ;; limit line length
-    ;; automatically clean up bad whitespace
-    (setq whitespace-action '(auto-cleanup))
-    ;; only show bad whitespace
-    (setq whitespace-style '(face
-                             trailing space-before-tab
-                             empty space-after-tab))
-
-    (with-eval-after-load 'popup
-      ;; advice for whitespace-mode conflict with popup
-      (defvar my-prev-whitespace-mode nil)
-      (make-local-variable 'my-prev-whitespace-mode)
-
-      (defadvice popup-draw (before my-turn-off-whitespace activate compile)
-        "Turn off whitespace mode before showing autocomplete box."
-        (if whitespace-mode
-            (progn
-              (setq my-prev-whitespace-mode t)
-              (whitespace-mode -1))
-          (setq my-prev-whitespace-mode nil)))
-
-      (defadvice popup-delete (after my-restore-whitespace activate compile)
-        "Restore previous whitespace mode when deleting autocomplete box."
-        (if my-prev-whitespace-mode
-            (whitespace-mode 1)))))
-
   (use-package aggressive-indent
     :config
-    (global-aggressive-indent-mode 1)
-    (add-to-list 'aggressive-indent-excluded-modes 'go-mode)
-    (add-to-list 'aggressive-indent-excluded-modes 'rust-mode))
+    (add-to-list 'aggressive-indent-excluded-modes 'go-ts-mode)
+    (add-to-list 'aggressive-indent-excluded-modes 'python-ts-mode)
+    (add-to-list 'aggressive-indent-excluded-modes 'rust-ts-mode)
+    (global-aggressive-indent-mode 1))
 
   ;; (use-package rainbow-delimiters
   ;;   :hook
@@ -354,28 +238,14 @@ Because some packages need fully reload, It may need several restarting Emacs.
 ** OS Related
 #+begin_src emacs-lisp
   (blink-cursor-mode -1)
-  (add-hook 'before-save-hook 'whitespace-cleanup)
   (setq ad-redefinition-action 'accept)
 
-  ;; Use UTF-8 as much as possible with unix line endings
-  (prefer-coding-system 'utf-8)
-  (set-default-coding-systems 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (set-selection-coding-system 'utf-8)
-  (setq locale-coding-system 'utf-8)
   ;; Treat clipboard input as UTF-8 string first; compound text next, etc.
   (when (display-graphic-p)
     (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 
-  ;; Always have a new line at the end of a file
-  (setq require-final-newline t)
-
   ;; When buffer is closed, saves the cursor location
   (save-place-mode 1)
-
-  ;; Real emacs knights don't use shift to mark things
-  (setq shift-select-mode nil)
 
   ;; Real emacs knights don't use shift to mark things
   (setq shift-select-mode nil)
@@ -388,12 +258,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
   ;; Prevent Extraneous Tabs
   (setq-default indent-tabs-mode nil)
-
-  ;; Use iBuffer instead of Buffer List
-  (global-set-key (kbd "C-x C-b") 'ibuffer)
-
-  ;; Truncate lines
-  (global-set-key (kbd "C-x C-!") 'toggle-truncate-lines)
 #+end_src
 
 *** macOS
@@ -411,14 +275,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
 #+end_src
 
 -----
-
-** Hydra
-#+begin_src emacs-lisp
-  (use-package init-hydra
-    :load-path "config"
-    :ensure nil)
-#+end_src
-
 
 ** Funny Skins
 #+begin_src emacs-lisp
@@ -464,11 +320,11 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (use-package emojify
     :config
     (add-hook 'org-mode-hook #'emojify-mode))
-  (use-package doom-modeline
-    :init (doom-modeline-mode 1))
-  (use-package nyan-mode
-    :hook
-    (after-init . nyan-mode))
+  ;; (use-package doom-modeline
+  ;;   :init (doom-modeline-mode 1))
+  ;; (use-package nyan-mode
+  ;;   :hook
+  ;;  (after-init . nyan-mode))
   (use-package doom-themes
     :config
     (load-theme 'doom-nord t)
@@ -522,7 +378,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (use-package all-the-icons
     :ensure nil
     :load-path "~/code/elisp/all-the-icons.el")
-    ;; (all-the-icons-install-fonts))
+  ;; (all-the-icons-install-fonts))
   (use-package nerd-icons
     :load-path "~/.emacs.d/plugin/nerd-icons"
     :ensure nil)
@@ -533,13 +389,18 @@ Because some packages need fully reload, It may need several restarting Emacs.
                       :width 'normal)
   (use-package all-the-icons-ivy-rich
     :ensure t
-    :init (all-the-icons-ivy-rich-mode 1))
+    :config
+    (all-the-icons-ivy-rich-mode 1))
 
   (use-package ivy-rich
     :ensure t
-    :init (ivy-rich-mode 1)
     :config
-    (setq all-the-icons-ivy-rich-icon-size 0.8))
+    (ivy-rich-mode 1)
+    (setq all-the-icons-ivy-rich-icon-size 0.8)
+    (defun ivy-rich--switch-buffer-directory! (orig-fun &rest args)
+      (cl-letf (((symbol-function 'directory-file-name) #'file-name-directory))
+        (apply orig-fun args)))
+    (advice-add 'ivy-rich--switch-buffer-directory :around #'ivy-rich--switch-buffer-directory!))
 
   (use-package all-the-icons-ibuffer
     :ensure t
@@ -552,6 +413,40 @@ Because some packages need fully reload, It may need several restarting Emacs.
                 (ibuffer-projectile-set-filter-groups)
                 (unless (eq ibuffer-sorting-mode 'alphabetic)
                   (ibuffer-do-sort-by-alphabetic)))))
+
+  (use-package dirvish
+    :init
+    (dirvish-override-dired-mode)
+    (setq dirvish-attributes
+          '(vc-state subtree-state all-the-icons collapse git-msg file-time file-size))
+    :custom
+    (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
+     '(("h" "~/"                 "Home")
+       ("s" "~/code/sensetime"   "Work Code")
+       ("c" "~/code/z"           "Personal Code")
+       ("d" "~/Downloads/"       "Downloads")
+       ("t" "/tmp/"              "Tmp")))
+    :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
+    (("C-c f" . dirvish-fd)
+     :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
+     ("a"   . dirvish-quick-access)
+     ("f"   . dirvish-file-info-menu)
+     ("y"   . dirvish-yank-menu)
+     ("N"   . dirvish-narrow)
+     ("^"   . dirvish-history-last)
+     ("i"   . dired-up-directory)
+     ("h"   . dirvish-history-jump) ; remapped `describe-mode'
+     ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+     ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
+     ("TAB" . dirvish-subtree-toggle)
+     ("M-f" . dirvish-history-go-forward)
+     ("M-b" . dirvish-history-go-backward)
+     ("M-l" . dirvish-ls-switches-menu)
+     ("M-m" . dirvish-mark-menu)
+     ("M-t" . dirvish-layout-toggle)
+     ("M-s" . dirvish-setup-menu)
+     ("M-e" . dirvish-emerge-menu)
+     ("M-j" . dirvish-fd-jump)))
 
   ;; dired auto use the other window path as target
   (setq dired-dwim-target t)
@@ -569,8 +464,8 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (if (eq system-type 'darwin)
       (progn
         ;; Set default font
-        ;;; 如果配置好，这24个汉字与下面个48英文字母应该等长
-        ;;; here are 24 chinese and 48 english chars, ended.
+            ;;; 如果配置好，这24个汉字与下面个48英文字母应该等长
+            ;;; here are 24 chinese and 48 english chars, ended.
         (set-face-attribute 'default nil
                             :family "Hack Nerd Font"
                             :height 140
@@ -581,8 +476,27 @@ Because some packages need fully reload, It may need several restarting Emacs.
                                        :size 16
                                        ))
         (set-fontset-font t 'cjk-misc (font-spec
-                                       :family "PingFang SC"
+                                       :family "Hack Nerd Font"
                                        :size 16
+                                       ))))
+
+  (if (featurep 'wr)
+      (progn
+        ;; Set default font
+            ;;; 如果配置好，这24个汉字与下面个48英文字母应该等长
+            ;;; here are 24 chinese and 48 english chars, ended.
+        (set-face-attribute 'default nil
+                            :family "Hack Nerd Font"
+                            :height 200
+                            :weight 'normal
+                            :width 'normal)
+        (set-fontset-font t 'han      (font-spec
+                                       :family "PingFang SC"
+                                       :size 20
+                                       ))
+        (set-fontset-font t 'cjk-misc (font-spec
+                                       :family "PingFang SC"
+                                       :size 20
                                        ))))
 
   ;; (setq face-font-rescale-alist '(("PingFang SC" . 1.0)))
@@ -596,11 +510,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (defun colorize-compilation-buffer ()
     (ansi-color-apply-on-region compilation-filter-start (point)))
   (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
-#+end_src
-
-*** Show line numbers
-#+begin_src emacs-lisp
-  (add-hook 'find-file-hooks (lambda()(display-line-numbers-mode 1)))
 #+end_src
 
 ** Kill ring
@@ -648,18 +557,14 @@ Because some packages need fully reload, It may need several restarting Emacs.
 ** Customize
 #+begin_src emacs-lisp
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-  (when (file-exists-p custom-file)
-    (load custom-file))
+  ; (when (file-exists-p custom-file)
+  ;   (load custom-file))
 #+end_src
+
 ** TBD
 
 #+begin_src emacs-lisp
-            ;;; var
-                                          ;(defvar program-mode (haskell-mode c-mode emacs-lisp-mode lisp-interaction-mode lisp-mode
-                                          ;                sh-mode c++-mode makefile-gmake-mode python-mode js-mode
-                                          ;                go-mode rust-mode lua-mode minibuffer-inactive-mode))
-
-      ;;; local package
+  ;;; local package
   (use-package init-org
     :ensure nil)
   (use-package init-pyim
@@ -668,52 +573,12 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :ensure nil)
   (use-package init-tabnine
     :ensure nil)
-  (use-package init-beancount
-    :ensure nil)
   (use-package init-window
     :ensure nil)
-  ;(use-package init-dired
-  ;  :ensure nil)
 
   (use-package multiple-cursors)
 
-
-  ;;; Treemacs
-  (use-package treemacs
-    :defer t
-    :init
-    (with-eval-after-load 'winum
-      (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
-    :config
-    (treemacs-resize-icons 22)
-    (treemacs-follow-mode t)
-    (treemacs-filewatch-mode t)
-    (treemacs-fringe-indicator-mode t)
-    (pcase (cons (not (null (executable-find "git")))
-                 (not (null (executable-find "python3"))))
-      (`(t . t)
-       (treemacs-git-mode 'deferred))
-      (`(t . _)
-       (treemacs-git-mode 'simple)))
-    :bind
-    (:map global-map
-          ("M-0"       . treemacs-select-window)
-          ("C-x t 1"   . treemacs-delete-other-windows)
-          ("C-x t t"   . treemacs)
-          ("C-x t B"   . treemacs-bookmark)
-          ("C-x t C-t" . treemacs-find-file)
-          ("C-x t M-t" . treemacs-find-tag)))
-
-  (use-package treemacs-projectile
-    :after treemacs projectile
-    :ensure t)
-
-  (use-package treemacs-icons-dired
-    :after treemacs dired
-    :ensure t
-    :config (treemacs-icons-dired-mode))
-
-      ;;; Bookmarks
+  ;;; Bookmarks
   (setq bookmark-save-flag 1) ; everytime bookmark is changed, automatically save it
   (use-package recentf
     :init
@@ -734,26 +599,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
   ;; scroll one line only when past the bottom of screen
   (setq scroll-conservatively 1)
 
-  (global-set-key (kbd "C-x C-b") 'ibuffer)
-  (setq ibuffer-saved-filter-groups
-        '(("home"
-           ("emacs-config" (or (filename . ".emacs.d")
-                               (filename . "emacs-config")))
-           ("eshells" (or (name . "\.esh")
-                          (name . "*eshell*")))
-           ("Org" (or (mode . org-mode)
-                      (filename . "OrgMode")))
-           ("Golang Dev" (or (mode . go-mode)))
-           ("Magit" (name . "\*magit"))
-           ("Help" (or (name . "\*Help\*")
-                       (name . "\*Apropos\*")
-                       (name . "\*info\*"))))))
-  (add-hook 'ibuffer-mode-hook
-            '(lambda ()
-               (ibuffer-switch-to-saved-filter-groups "home")))
-  (setq ibuffer-expert t)
-  (setq ibuffer-show-empty-filter-groups nil)
-
   ;; (require 'tramp)
   ;; (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
 
@@ -763,61 +608,10 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (global-set-key (kbd "C-c C-p") 'mc/mark-previous-like-this)
   (global-set-key (kbd "C-c C-a") 'mc/mark-all-like-this)
 
-  ;; Move backup file to tmp folder
-  (setq  backup-directory-alist `((".*" . ,temporary-file-directory))
-         auto-save-file-name-transforms `((".*" ,temporary-file-directory t))
-         backup-by-copying t
-         delete-old-versions t
-         kept-new-versions 6
-         kept-old-versions 2
-         version-control t)
-
-  ;; Ace-window
-  (global-set-key (kbd "C-M-o") 'ace-window)     ; Ace-window
-  (setq aw-keys '(?a ?s ?d ?f ?q ?w ?e ?r))
-  ;; avy
-  (use-package avy
-    :bind
-    (("C-M-[" . avy-goto-char-2)))
-
     ;;; Global
 
   (setq inhibit-compacting-font-caches t)
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-
-  (use-package ivy
-    :diminish ivy-mode
-    :config
-    (setq ivy-use-selectable-prompt t)
-    (use-package ivy-rich)
-    (use-package swiper)
-    (use-package counsel
-      :bind
-      ("M-y" . counsel-yank-pop)
-      ("M-x" . counsel-M-x)
-      ("C-c g" . counsel-git)
-      ("C-c j" . counsel-git-grep)
-      ("C-c k" . counsel-rg)
-      ("C-x C-f" . counsel-find-file)
-      ("C-x r m" . counsel-bookmark))
-    (ivy-mode 1)
-    (setq ivy-use-virtual-buffers t)
-    (setq enable-recursive-minibuffers t)
-    ;; enable this if you want `swiper' to use it
-    ;; (setq search-default-mode #'char-fold-to-regexp)
-    (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
-    :bind
-    (("C-s" . swiper)
-     ("C-c C-r" . ivy-resume)
-     ("M-y" . counsel-yank-pop)
-     ("M-x" . counsel-M-x)
-     ("C-c g" . counsel-git)
-     ("C-c j" . counsel-git-grep)
-     ("C-c k" . counsel-rg)
-     ("C-x C-f" . counsel-find-file)
-
-     :map minibuffer-local-map
-     ("C-r" . counsel-minibuffer-history)))
 
   ;; magit
   (use-package magit
@@ -846,9 +640,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :hook
     (prog-mode . indent-guide-mode)
     (yaml-mode . indent-guide-mode))
-
-  (load "server")
-  (unless (server-running-p) (server-start))
 
   ;;(use-package yequake)
   ;;  :custom

@@ -7,21 +7,19 @@
 (eval-when-compile
   (require 'init-const))
 
-(use-package go-mode
+(use-package go-ts-mode
+  :ensure nil
   :init
-  (add-to-list 'exec-path "~/code/go/bin")
+  (add-to-list 'exec-path "~/.gobrew/current/bin")
   :config
+  (setq go-ts-mode-indent-offset 4)
   (with-eval-after-load 'exec-path-from-shell
     (exec-path-from-shell-copy-envs '("GOPATH" "GO111MODULE" "GOPROXY")))
 
   ;; Install or update tools
   (defvar go--tools '("golang.org/x/tools/cmd/goimports"
                       "golang.org/x/tools/cmd/gorename"
-
-                      ;; "github.com/rogpeppe/godef"
-                      "github.com/go-delve/delve/cmd/dlv"
                       "github.com/josharian/impl"
-                      "github.com/cweill/gotests/..."
                       "github.com/fatih/gomodifytags"
                       "github.com/davidrjenni/reftools/cmd/fillstruct"
                       "github.com/golangci/golangci-lint/cmd/golangci-lint")
@@ -31,8 +29,6 @@
   ;; https://github.com/golang/tools/blob/master/gopls/doc/user.md#installation
   (defvar go--tools-no-update '("golang.org/x/tools/gopls@latest")
     "All necessary go tools without update the dependencies.")
-
-  (add-hook 'before-save-hook 'format-all-buffer)
 
   (defun go-update-tools ()
     "Install or update go tools."
@@ -90,12 +86,10 @@
       (compile "make push")))
 
   :bind
-  (:map go-mode-map
+  (:map go-ts-mode-map
         ("C-c C-r" . project-compile)
         ("C-c C-i" . project-image)
-        ("C-c C-p" . project-image-push)
-        ("C-c R" . go-remove-unused-imports))
-  :hook
+        ("C-c C-p" . project-image-push))
   )
 
 (use-package go-fill-struct

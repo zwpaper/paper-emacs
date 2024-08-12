@@ -34,7 +34,15 @@
   "Emacs is 27 or above.")
 
 (defconst org-path
-  "")
+  "/Users/zhangwei/OneDrive/org-mode")
+(defun org-path-concat (&rest args)
+  "Return filename inside org mode dir."
+  (concat (apply 'concat (let ((root org-path)
+                               (dirs (butlast args)))
+                           (mapcar
+                            (lambda (name) (file-name-as-directory name))
+                            (push root dirs))))
+          (car (last args))))
 
 (provide 'init-const)
 

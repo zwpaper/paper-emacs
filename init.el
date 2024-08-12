@@ -20,14 +20,25 @@
         ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
         ;; ("melpa" . "https://melpa.org/packages/")
         ;; ("melpa" . "http://elpa.emacs-china.org/melpa/")
-        ;; ("melpa-stable" . "https://stable.melpa.org/packages/")
+        ("melpa-stable" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/stable-melpa/")
         ("gnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
         ("org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
+        ;; ("org" . "http://elpa.emacs-china.org/org/")
         ))
-(package-initialize)
-(package-refresh-contents)
+(add-to-list 'package-pinned-packages '(telega . "melpa-stable"))
 
-(org-babel-load-file (expand-file-name "~/.emacs.d/README.org"))
+(setq url-proxy-services '(("no_proxy" . "\\(localhost\\|tsinghua\\.edu\\.cn\\|192\\.168\\..*\\|10\\..*\\|172\\..*\\|sensetime\\.com\\)")
+                           ("http" . "127.0.0.1:7890")
+                           ("https" . "127.0.0.1:7890")))
+(package-initialize)
+;; (package-refresh-contents)
+
+;; only load complicated config in GUI mode, for terminal mode, use simple config
+(load-file "~/.emacs.d/term.el")
+(when (display-graphic-p)
+  (org-babel-load-file (expand-file-name "~/.emacs.d/README.org"))
+  )
+
 (garbage-collect)
 
 (provide 'init)
