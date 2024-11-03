@@ -27,7 +27,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
     (require 'use-package))
   (setq use-package-always-ensure t)
 
-  (add-to-list 'load-path "~/.emacs.d/config")
 #+end_src
 
 
@@ -115,7 +114,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
      ("M-w M-b" . thing-copy-whole-buffer)))
 
   (use-package fingertip
-    :load-path "~/code/z/fingertip"
+    :load-path "~/code/el/fingertip"
     :ensure nil
     :config
     (dolist (hook (list
@@ -141,8 +140,22 @@ Because some packages need fully reload, It may need several restarting Emacs.
                    'qmake-mode-hook
                    'lua-mode-hook
                    'swift-mode-hook
-                   'minibuffer-inactive-mode-hook
+                   'web-mode-hook
+                   'markdown-mode-hook
+                   'llvm-mode-hook
+                   'conf-toml-mode-hook
+                   'nim-mode-hook
                    'typescript-mode-hook
+                   'c-ts-mode-hook
+                   'c++-ts-mode-hook
+                   'cmake-ts-mode-hook
+                   'toml-ts-mode-hook
+                   'css-ts-mode-hook
+                   'js-ts-mode-hook
+                   'json-ts-mode-hook
+                   'python-ts-mode-hook
+                   'bash-ts-mode-hook
+                   'typescript-ts-mode-hook
                    ))
       (add-hook hook #'(lambda () (fingertip-mode 1))))
     (define-key fingertip-mode-map (kbd "(") 'fingertip-open-round)
@@ -190,12 +203,58 @@ Because some packages need fully reload, It may need several restarting Emacs.
     :config
     (jieba-mode))
 
-  (use-package aggressive-indent
-    :config
-    (add-to-list 'aggressive-indent-excluded-modes 'go-ts-mode)
-    (add-to-list 'aggressive-indent-excluded-modes 'python-ts-mode)
-    (add-to-list 'aggressive-indent-excluded-modes 'rust-ts-mode)
-    (global-aggressive-indent-mode 1))
+  (defun moon-hungry-delete ()
+    "Smart and clean delete.
+  If we are at the beginning of a line, backspace
+  deletes all whitespace before and after point
+  and moves point to the previous line."
+    (interactive)
+    (if (or (region-active-p)
+            (<= (car (syntax-ppss)) 0))
+        (if (member (char-before) '(?{ ?\[ ?\())
+            (call-interactively #'electric-pair-delete-pair)
+          (call-interactively #'backward-delete-char-untabify))
+      ;; case1: closing delimiter after point:
+      ;;        delete all excess white space and new line
+      ;;        before and after point
+      ;;        add newline and indent if is }
+      ;; case2: other stuff after point:
+      ;;        remove empty lines and indent
+      (let* ((point (point))
+             (bolt (save-excursion
+                     ;; `beginning-of-line-text' seems to ignore comment for some reason,
+                     (beginning-of-line)
+                     (skip-chars-forward " \t")
+                     (point)))
+             ;; beginning of the region that we are to delete
+             (beg (save-excursion (while (member (char-before) '(?\n ?\s ?\t))
+                                    (backward-char))
+                                  (point)))
+             ;; end of that region
+             (end (save-excursion (goto-char bolt)
+                                  (while (member (char-after) '(?\n ?\s ?\t))
+                                    (forward-char))
+                                  (point))))
+        (if (<= point bolt)
+            ;; actually decide to delete stuff
+            (progn
+              (delete-region beg end)
+              (unless (eql (char-after) ?\))
+                (call-interactively #'newline))
+              ;; so we did all this and ends up not changing anything
+              ;; why? because the user doesn't want to delete excess white space,
+              ;; but to delete back to previous line! do that.
+              (when (eql (point) end)
+                (delete-region beg end)
+                (insert ?\s)))
+          ;; not at beginning of text, just do normal delete
+          (if (member (char-before) '(?{ ?\[ ?\())
+              (call-interactively #'electric-pair-delete-pair)
+            (call-interactively #'backward-delete-char-untabify))))))
+
+  (global-set-key (kbd "<C-backspace>") (lambda ()
+                                          (interactive)
+                                          (moon-hungry-delete)))
 
   ;; (use-package rainbow-delimiters
   ;;   :hook
@@ -237,7 +296,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
 ** OS Related
 #+begin_src emacs-lisp
-  (blink-cursor-mode -1)
   (setq ad-redefinition-action 'accept)
 
   ;; Treat clipboard input as UTF-8 string first; compound text next, etc.
@@ -320,40 +378,9 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (use-package emojify
     :config
     (add-hook 'org-mode-hook #'emojify-mode))
-  ;; (use-package doom-modeline
-  ;;   :init (doom-modeline-mode 1))
-  ;; (use-package nyan-mode
-  ;;   :hook
-  ;;  (after-init . nyan-mode))
-  (use-package doom-themes
-    :config
-    (load-theme 'doom-nord t)
-    ;; (load-theme 'modus-vivendi t)
-    ;; fix terminal not load theme correctly
-    (add-hook 'after-make-frame-functions
-              (lambda (frame)
-                (if (window-system)
-                    (load-theme 'doom-nord t))
-                (with-selected-frame frame (load-theme 'doom-nord t))))
-
-    ;; Global settings (defaults)
-    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-          doom-themes-enable-italic t) ; if nil, italics is universally disabled
-
-    ;; (setq current-theme 'doom-nord)
-    (setq current-theme 'modus-vivendi)
-
-    ;; Enable flashing mode-line on errors
-    (doom-themes-visual-bell-config)
-
-    ;; Enable custom neotree theme (all-the-icons must be installed!)
-    (doom-themes-neotree-config)
-    ;; or for treemacs users
-    (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
-    (doom-themes-treemacs-config)
-
-    ;; Corrects (and improves) org-mode's native fontification.
-    (doom-themes-org-config))
+  (use-package nyan-mode
+    :hook
+    (after-init . nyan-mode))
 
   (defcustom centaur-icon (display-graphic-p)
     "Display icons or not."
@@ -373,134 +400,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
 #+begin_quote
    brew cask install font-hack-nerd-font
 #+end_quote
-
-#+begin_src emacs-lisp
-  (use-package all-the-icons
-    :ensure nil
-    :load-path "~/code/elisp/all-the-icons.el")
-  ;; (all-the-icons-install-fonts))
-  (use-package nerd-icons
-    :load-path "~/.emacs.d/plugin/nerd-icons"
-    :ensure nil)
-  (set-face-attribute 'default nil
-                      :family "Hack Nerd Font"
-                      :height 140
-                      :weight 'normal
-                      :width 'normal)
-  (use-package all-the-icons-ivy-rich
-    :ensure t
-    :config
-    (all-the-icons-ivy-rich-mode 1))
-
-  (use-package ivy-rich
-    :ensure t
-    :config
-    (ivy-rich-mode 1)
-    (setq all-the-icons-ivy-rich-icon-size 0.8)
-    (defun ivy-rich--switch-buffer-directory! (orig-fun &rest args)
-      (cl-letf (((symbol-function 'directory-file-name) #'file-name-directory))
-        (apply orig-fun args)))
-    (advice-add 'ivy-rich--switch-buffer-directory :around #'ivy-rich--switch-buffer-directory!))
-
-  (use-package all-the-icons-ibuffer
-    :ensure t
-    :init (all-the-icons-ibuffer-mode 1))
-
-  (use-package ibuffer-projectile
-    :config
-    (add-hook 'ibuffer-hook
-              (lambda ()
-                (ibuffer-projectile-set-filter-groups)
-                (unless (eq ibuffer-sorting-mode 'alphabetic)
-                  (ibuffer-do-sort-by-alphabetic)))))
-
-  (use-package dirvish
-    :init
-    (dirvish-override-dired-mode)
-    (setq dirvish-attributes
-          '(vc-state subtree-state all-the-icons collapse git-msg file-time file-size))
-    :custom
-    (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
-     '(("h" "~/"                 "Home")
-       ("s" "~/code/sensetime"   "Work Code")
-       ("c" "~/code/z"           "Personal Code")
-       ("d" "~/Downloads/"       "Downloads")
-       ("t" "/tmp/"              "Tmp")))
-    :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
-    (("C-c f" . dirvish-fd)
-     :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
-     ("a"   . dirvish-quick-access)
-     ("f"   . dirvish-file-info-menu)
-     ("y"   . dirvish-yank-menu)
-     ("N"   . dirvish-narrow)
-     ("^"   . dirvish-history-last)
-     ("i"   . dired-up-directory)
-     ("h"   . dirvish-history-jump) ; remapped `describe-mode'
-     ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
-     ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
-     ("TAB" . dirvish-subtree-toggle)
-     ("M-f" . dirvish-history-go-forward)
-     ("M-b" . dirvish-history-go-backward)
-     ("M-l" . dirvish-ls-switches-menu)
-     ("M-m" . dirvish-mark-menu)
-     ("M-t" . dirvish-layout-toggle)
-     ("M-s" . dirvish-setup-menu)
-     ("M-e" . dirvish-emerge-menu)
-     ("M-j" . dirvish-fd-jump)))
-
-  ;; dired auto use the other window path as target
-  (setq dired-dwim-target t)
-
-  (cond ((eq system-type 'windows-nt)
-         ;; Windows-specific code goes here.
-         )
-        ((eq system-type 'gnu/linux)
-         ;; Linux-specific code goes here.
-         )
-        ((eq system-type 'darwin)
-         ;; macOS code goes here.
-         ))
-
-  (if (eq system-type 'darwin)
-      (progn
-        ;; Set default font
-            ;;; 如果配置好，这24个汉字与下面个48英文字母应该等长
-            ;;; here are 24 chinese and 48 english chars, ended.
-        (set-face-attribute 'default nil
-                            :family "Hack Nerd Font"
-                            :height 140
-                            :weight 'normal
-                            :width 'normal)
-        (set-fontset-font t 'han      (font-spec
-                                       :family "PingFang SC"
-                                       :size 16
-                                       ))
-        (set-fontset-font t 'cjk-misc (font-spec
-                                       :family "Hack Nerd Font"
-                                       :size 16
-                                       ))))
-
-  (if (featurep 'wr)
-      (progn
-        ;; Set default font
-            ;;; 如果配置好，这24个汉字与下面个48英文字母应该等长
-            ;;; here are 24 chinese and 48 english chars, ended.
-        (set-face-attribute 'default nil
-                            :family "Hack Nerd Font"
-                            :height 200
-                            :weight 'normal
-                            :width 'normal)
-        (set-fontset-font t 'han      (font-spec
-                                       :family "PingFang SC"
-                                       :size 20
-                                       ))
-        (set-fontset-font t 'cjk-misc (font-spec
-                                       :family "PingFang SC"
-                                       :size 20
-                                       ))))
-
-  ;; (setq face-font-rescale-alist '(("PingFang SC" . 1.0)))
-#+end_src
 
 *** Show color in buffers
     + compilation
@@ -564,7 +463,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
 ** TBD
 
 #+begin_src emacs-lisp
-  ;;; local package
   (use-package init-org
     :ensure nil)
   (use-package init-pyim
@@ -578,7 +476,7 @@ Because some packages need fully reload, It may need several restarting Emacs.
 
   (use-package multiple-cursors)
 
-  ;;; Bookmarks
+      ;;; Bookmarks
   (setq bookmark-save-flag 1) ; everytime bookmark is changed, automatically save it
   (use-package recentf
     :init
@@ -608,11 +506,6 @@ Because some packages need fully reload, It may need several restarting Emacs.
   (global-set-key (kbd "C-c C-p") 'mc/mark-previous-like-this)
   (global-set-key (kbd "C-c C-a") 'mc/mark-all-like-this)
 
-    ;;; Global
-
-  (setq inhibit-compacting-font-caches t)
-  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-
   ;; magit
   (use-package magit
     :config
@@ -620,9 +513,9 @@ Because some packages need fully reload, It may need several restarting Emacs.
       :config
       (setq magit-delta-default-dark-theme "OneHalfDark")
       (setq magit-delta-delta-args
-            `("--max-line-distance" "0.6"
-              "--24-bit-color" ,(if xterm-color--support-truecolor "always" "never")
-              "--color-only" "--minus-style" "normal red" "--plus-style" "normal green")))
+        `("--max-line-distance" "0.6"
+          "--24-bit-color" ,(if xterm-color--support-truecolor "always" "never")
+          "--color-only" "--minus-style" "normal red" "--plus-style" "normal green")))
     ;; :config
     ;; (use-package magit-todos
     ;;   :config
@@ -653,10 +546,10 @@ Because some packages need fully reload, It may need several restarting Emacs.
   ;;                           (skip-taskbar . t)
   ;;                           (sticky . t))))))
 
-                                          ; (setq org-latex-compiler "xelatex")
-                                          ; (setq org-latex-pdf-process '("latexmk -xelatex -quiet -shell-escape -f %f"))
-                                          ; (setq-default TeX-engine 'xetex)
-                                          ; (setq-default TeX-PDF-mode t)
+					  ; (setq org-latex-compiler "xelatex")
+					  ; (setq org-latex-pdf-process '("latexmk -xelatex -quiet -shell-escape -f %f"))
+					  ; (setq-default TeX-engine 'xetex)
+					  ; (setq-default TeX-PDF-mode t)
 #+end_src
 
 * Credits

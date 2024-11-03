@@ -22,24 +22,38 @@
         ;; ("melpa" . "http://elpa.emacs-china.org/melpa/")
         ("melpa-stable" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/stable-melpa/")
         ("gnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-        ("org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
-        ;; ("org" . "http://elpa.emacs-china.org/org/")
         ))
-(add-to-list 'package-pinned-packages '(telega . "melpa-stable"))
-
-(setq url-proxy-services '(("no_proxy" . "\\(localhost\\|tsinghua\\.edu\\.cn\\|192\\.168\\..*\\|10\\..*\\|172\\..*\\|sensetime\\.com\\)")
-                           ("http" . "127.0.0.1:7890")
-                           ("https" . "127.0.0.1:7890")))
 (package-initialize)
-;; (package-refresh-contents)
 
-;; only load complicated config in GUI mode, for terminal mode, use simple config
 (load-file "~/.emacs.d/term.el")
-(when (display-graphic-p)
-  (org-babel-load-file (expand-file-name "~/.emacs.d/README.org"))
-  )
+
+(if (window-system)
+    ;; Emacs is running in GUI mode
+    (progn
+      (package-refresh-contents)
+
+      (org-babel-load-file (expand-file-name "~/.emacs.d/README.org"))
+      ))
 
 (garbage-collect)
 
+;; (setq url-proxy-services
+;;       '(("no_proxy" . "^\\(localhost\\|10\\..*\\|192\\.168\\..*\\)")
+;;         ("http" . "http://localhost:7890")
+;;         ("https" . "http://localhost:7890")))
+
 (provide 'init)
 ;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(unicode-escape fish-mode yasnippet-snippets yaml-mode which-key web-mode vterm use-package-hydra use-package-ensure-system-package tsc treemacs-projectile treemacs-icons-dired tablist shackle rust-mode rime reformatter rainbow-delimiters quelpa python-mode pretty-hydra pangu-spacing ox-hugo ox-gfm org-plus-contrib org-bullets orderless nyan-mode multiple-cursors markdown-toc magit-delta lua-mode lsp-haskell liberime kubernetes keytar json-mode indent-guide ibuffer-projectile highlight-parentheses highlight-blocks haskell-mode groovy-mode grammarly go-tag go-impl go-fill-struct format-all flycheck-posframe flycheck-popup-tip flycheck-golangci-lint flutter-l10n-flycheck exec-path-from-shell eshell-up eshell-prompt-extras eshell-did-you-mean emojify editorconfig doom-themes doom-modeline doom dockerfile-mode devdocs-browser deft dashboard dart-mode counsel corfu company-tabnine company-posframe company-box ccls aweshell all-the-icons-ivy-rich all-the-icons-ibuffer aio aggressive-indent)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
